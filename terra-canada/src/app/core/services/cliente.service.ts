@@ -25,7 +25,7 @@ export interface ApiResponse<T> {
   providedIn: 'root'
 })
 export class ClienteService {
-  private apiUrl = 'http://localhost:3000/api/v1/clientes';
+  private apiUrl = 'https://terra-canada-test-back.vamw1k.easypanel.host/api/v1/clientes';
   private clientesSubject = new BehaviorSubject<Cliente[]>([]);
   public clientes$ = this.clientesSubject.asObservable();
   private clientesCargados = false;

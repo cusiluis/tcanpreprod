@@ -16,7 +16,7 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   console.log('authInterceptor - localStorage disponible:', typeof localStorage !== 'undefined');
   console.log('authInterceptor - Todas las keys en localStorage:', Object.keys(localStorage || {}));
   // Solo añadimos el token a las peticiones internas del backend
-  const isInternalApi = req.url.startsWith('http://localhost:3000/api/v1');
+  const isInternalApi = req.url.startsWith('https://terra-canada-test-back.vamw1k.easypanel.host/api/v1');
 
   let modifiedReq = req;
 

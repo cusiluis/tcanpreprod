@@ -52,7 +52,7 @@ export interface PagoBancarioScanResponse {
   providedIn: 'root'
 })
 export class PagoBancarioService {
-  private apiUrl = 'http://localhost:3000/api/v1/pagos-bancarios';
+  private apiUrl = 'https://terra-canada-test-back.vamw1k.easypanel.host/api/v1/pagos-bancarios';
   private pagoBancarios$ = new BehaviorSubject<PagoBancario[]>([]);
 
   constructor(
@@ -177,7 +177,7 @@ export class PagoBancarioService {
    * Obtener todas las cuentas bancarias
    */
   getCuentasBancarias(): Observable<any> {
-    const cuentasUrl = 'http://localhost:3000/api/v1/cuentas-bancarias';
+    const cuentasUrl = 'https://terra-canada-test-back.vamw1k.easypanel.host/api/v1/cuentas-bancarias';
     console.log('PagoBancarioService.getCuentasBancarias() - Obteniendo cuentas desde:', cuentasUrl);
     return this.http.get<any>(cuentasUrl, {
       headers: this.getHeaders()

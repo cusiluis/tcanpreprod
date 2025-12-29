@@ -13,7 +13,7 @@ async function testTarjetasWithAuth() {
 
     // Paso 1: Login para obtener token válido
     console.log('📝 Paso 1: Obteniendo token válido...');
-    const loginResponse = await fetch('http://localhost:3000/api/v1/auth/login', {
+    const loginResponse = await fetch('https://terra-canada-test-back.vamw1k.easypanel.host/api/v1/auth/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -40,7 +40,7 @@ async function testTarjetasWithAuth() {
 
     // Paso 2: Probar GET /api/v1/tarjetas con token válido
     console.log('\n📝 Paso 2: Probando GET /api/v1/tarjetas con token válido...');
-    const tarjetasResponse = await fetch('http://localhost:3000/api/v1/tarjetas', {
+    const tarjetasResponse = await fetch('https://terra-canada-test-back.vamw1k.easypanel.host/api/v1/tarjetas', {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',

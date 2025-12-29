@@ -9,7 +9,7 @@ import { HttpClient } from '@angular/common/http';
   providedIn: 'root'
 })
 export class TestProveedoresService {
-  private apiUrl = 'http://localhost:3000/api/v1/proveedores';
+  private apiUrl = 'https://terra-canada-test-back.vamw1k.easypanel.host/api/v1/proveedores';
 
   constructor(private http: HttpClient) {}
 

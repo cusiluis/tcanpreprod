@@ -45,7 +45,7 @@ async function testCuentasBancarias() {
 
     // Paso 2: Obtener token válido
     console.log('\n\n📝 Paso 2: Obteniendo token válido...');
-    const loginResponse = await fetch('http://localhost:3000/api/v1/auth/login', {
+    const loginResponse = await fetch('https://terra-canada-test-back.vamw1k.easypanel.host/api/v1/auth/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -67,7 +67,7 @@ async function testCuentasBancarias() {
 
     // Paso 3: Probar GET /api/v1/cuentas-bancarias
     console.log('\n📝 Paso 3: Probando GET /api/v1/cuentas-bancarias...');
-    const cuentasResponse = await fetch('http://localhost:3000/api/v1/cuentas-bancarias', {
+    const cuentasResponse = await fetch('https://terra-canada-test-back.vamw1k.easypanel.host/api/v1/cuentas-bancarias', {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',

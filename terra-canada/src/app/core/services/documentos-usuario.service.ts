@@ -24,7 +24,7 @@ export interface DocumentoUsuarioDetalle extends DocumentoUsuarioResumen {
   providedIn: 'root'
 })
 export class DocumentosUsuarioService {
-  private apiUrl = 'http://localhost:3000/api/v1/documentos-usuario';
+  private apiUrl = 'https://terra-canada-test-back.vamw1k.easypanel.host/api/v1/documentos-usuario';
 
   constructor(private http: HttpClient) {}
 

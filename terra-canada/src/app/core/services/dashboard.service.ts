@@ -14,7 +14,7 @@ export class DashboardService {
   private menuItemsSubject = new BehaviorSubject<MenuItem[]>([]);
   public menuItems$ = this.menuItemsSubject.asObservable();
 
-  private readonly apiUrl = 'http://localhost:3000/api/v1/dashboard';
+  private readonly apiUrl = 'https://terra-canada-test-back.vamw1k.easypanel.host/api/v1/dashboard';
 
   constructor(private http: HttpClient) {
     this.initializeMenuItems();

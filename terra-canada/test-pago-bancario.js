@@ -30,7 +30,7 @@ const testData = {
 console.log('   Datos a enviar:', testData);
 console.log('   Token en header:', token ? 'SÍ' : 'NO');
 
-fetch('http://localhost:3000/api/v1/pagos-bancarios', {
+fetch('https://terra-canada-test-back.vamw1k.easypanel.host/api/v1/pagos-bancarios', {
   method: 'POST',
   headers: {
     'Authorization': `Bearer ${token}`,

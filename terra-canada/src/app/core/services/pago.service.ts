@@ -78,7 +78,7 @@ export interface WebhookModalEvent {
   providedIn: 'root'
 })
 export class PagoService {
-  private apiUrl = 'http://localhost:3000/api/v1/pagos';
+  private apiUrl = 'https://terra-canada-test-back.vamw1k.easypanel.host/api/v1/pagos';
   private pagosSubject = new BehaviorSubject<PagoDisplay[]>([]);
   public pagos$ = this.pagosSubject.asObservable();
   private webhookModalSubject = new Subject<WebhookModalEvent>();

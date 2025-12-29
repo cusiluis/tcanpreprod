@@ -10,7 +10,7 @@ import {
   providedIn: 'root'
 })
 export class AnalisisService {
-  private readonly apiUrl = 'http://localhost:3000/api/v1/analisis';
+  private readonly apiUrl = 'https://terra-canada-test-back.vamw1k.easypanel.host/api/v1/analisis';
 
   constructor(private http: HttpClient) {}
 

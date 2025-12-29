@@ -64,7 +64,7 @@ export interface PagoPayload {
   providedIn: 'root'
 })
 export class TarjetaService {
-  private readonly API_URL = 'http://localhost:3000/api/v1/tarjetas';
+  private readonly API_URL = 'https://terra-canada-test-back.vamw1k.easypanel.host/api/v1/tarjetas';
   
   private tarjetasSubject = new BehaviorSubject<Tarjeta[]>([]);
   public tarjetas$ = this.tarjetasSubject.asObservable();

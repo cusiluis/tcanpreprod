@@ -17,7 +17,7 @@ export class AuthService {
   private tokenSubject = new BehaviorSubject<string | null>(null);
   public token$ = this.tokenSubject.asObservable();
 
-  private readonly API_URL = 'http://localhost:3000/api/v1';
+  private readonly API_URL = 'https://terra-canada-test-back.vamw1k.easypanel.host/api/v1';
   private readonly SESSION_TIMEOUT = 30 * 60 * 1000; // 30 minutos de inactividad
   private sessionTimeoutId: any = null;
   private lastActivityTime: number = Date.now();

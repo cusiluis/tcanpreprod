@@ -46,7 +46,7 @@ export interface UpdateUsuarioPayload {
   providedIn: 'root'
 })
 export class UsuarioService {
-  private readonly apiUrl = 'http://localhost:3000/api/v1/usuarios';
+  private readonly apiUrl = 'https://terra-canada-test-back.vamw1k.easypanel.host/api/v1/usuarios';
 
   private usuariosSubject = new BehaviorSubject<Usuario[]>([]);
   usuarios$ = this.usuariosSubject.asObservable();

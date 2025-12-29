@@ -58,7 +58,7 @@ async function testTarjetas() {
 
     // Prueba 3: Verificar la ruta GET /api/v1/tarjetas
     console.log('\n\n🔍 Probando ruta GET /api/v1/tarjetas...');
-    const response = await fetch('http://localhost:3000/api/v1/tarjetas', {
+    const response = await fetch('https://terra-canada-test-back.vamw1k.easypanel.host/api/v1/tarjetas', {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',

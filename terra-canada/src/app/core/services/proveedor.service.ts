@@ -29,7 +29,7 @@ export interface ApiResponse<T> {
   providedIn: 'root'
 })
 export class ProveedorService {
-  private apiUrl = 'http://localhost:3000/api/v1/proveedores';
+  private apiUrl = 'https://terra-canada-test-back.vamw1k.easypanel.host/api/v1/proveedores';
   private proveedoresSubject = new BehaviorSubject<Proveedor[]>([]);
   public proveedores$ = this.proveedoresSubject.asObservable();
   private proveedoresCargados = false;
