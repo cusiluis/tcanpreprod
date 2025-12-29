@@ -1,0 +1,54 @@
+<aside class="sidebar">
+  <!-- Logo Section -->
+  <div class="sidebar-header">
+    <img src="assets/images/logo_terracanada.png" alt="Terra Canada Logo" class="sidebar-logo" />
+  </div>
+
+  <!-- User Profile -->
+  <div class="user-profile">
+    <div class="user-avatar">{{ userInitials }}</div>
+    <div class="user-info">
+      <p class="user-name">{{ userName }}</p>
+    </div>
+  </div>
+
+  <!-- Menu Items -->
+  <nav class="sidebar-menu">
+    <div *ngFor="let item of menuItems" class="menu-group">
+      <button
+        class="menu-item"
+        [class.active]="isParentActive(item)"
+        (click)="onItemClick(item)"
+        [attr.data-id]="item.id">
+        <i [ngClass]="item.icon"></i>
+        <span class="menu-label">{{ getMenuLabel(item) | translate }}</span>
+        <span *ngIf="item.badge" class="menu-badge">{{ item.badge }}</span>
+        <i
+          *ngIf="item.children?.length"
+          class="pi submenu-toggle-icon"
+          [ngClass]="isExpanded(item.id) ? 'pi-chevron-down' : 'pi-chevron-right'">
+        </i>
+      </button>
+
+      <div *ngIf="item.children?.length && isExpanded(item.id)" class="submenu">
+        <button
+          *ngFor="let child of item.children"
+          class="submenu-item"
+          [class.active]="isActive(child.route)"
+          (click)="navigateTo(child.route)"
+          [attr.data-id]="child.id">
+          <i [ngClass]="child.icon"></i>
+          <span class="menu-label">{{ getMenuLabel(child) | translate }}</span>
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Logout Button -->
+  <div class="sidebar-footer">
+    <button class="logout-btn" (click)="navigateTo('/login')">
+      <i class="pi pi-sign-out"></i>
+      <span>{{ 'logout' | translate }}</span>
+    </button>
+  </div>
+</aside>

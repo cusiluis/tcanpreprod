@@ -1,0 +1,44 @@
+<div class="recent-activity">
+  <div class="activity-header">
+    <h3>{{ 'actividadReciente' | translate }}</h3>
+    <button class="refresh-btn">
+      <i class="pi pi-refresh"></i>
+      {{ 'actualizar' | translate }}
+    </button>
+  </div>
+
+  <div class="activity-table">
+    <table>
+      <thead>
+        <tr>
+          <th>{{ 'fecha' | translate }}</th>
+          <th>{{ 'usuario' | translate }}</th>
+          <th>{{ 'accion' | translate }}</th>
+          <th>{{ 'monto' | translate }}</th>
+          <th>{{ 'estado' | translate }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let activity of activities">
+          <td>
+            <span class="date">{{ activity.date }}</span>
+            <span class="time">{{ activity.time }}</span>
+          </td>
+          <td>{{ activity.user }}</td>
+          <td>{{ activity.action }}</td>
+          <td>
+            <span *ngIf="activity.amount">
+              ${{ activity.amount }} {{ activity.currency }}
+            </span>
+            <span *ngIf="!activity.amount">-</span>
+          </td>
+          <td>
+            <span class="status-badge" [ngClass]="getStatusClass(activity.status)">
+              {{ activity.status | uppercase }}
+            </span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

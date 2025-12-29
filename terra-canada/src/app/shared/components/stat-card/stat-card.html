@@ -1,0 +1,22 @@
+<div class="stat-card" *ngIf="stat">
+  <div class="stat-header">
+    <div class="stat-icon" [style.backgroundColor]="stat.color">
+      <i [ngClass]="stat.icon"></i>
+    </div>
+  </div>
+
+  <div class="stat-content">
+    <p class="stat-value">
+      {{ stat.value }}
+      <span *ngIf="stat.unit" class="stat-unit">{{ stat.unit }}</span>
+    </p>
+    <p class="stat-title">{{ getTranslatedTitle(stat.id) | translate }}</p>
+  </div>
+
+  <div class="stat-footer" *ngIf="stat.trend !== undefined">
+    <span class="stat-trend" [class.up]="stat.trendDirection === 'up'" [class.down]="stat.trendDirection === 'down'">
+      <i [class]="stat.trendDirection === 'up' ? 'pi pi-arrow-up' : 'pi pi-arrow-down'"></i>
+      {{ stat.trend }}%
+    </span>
+  </div>
+</div>

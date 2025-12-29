@@ -1,0 +1,103 @@
+<div class="paginated-table-container">
+  <!-- Table Wrapper with Internal Scroll -->
+  <div class="table-wrapper" [style.max-height]="maxHeight">
+    <table class="data-table" *ngIf="data.length > 0">
+      <thead>
+        <tr>
+          <th *ngFor="let column of columns" [style.width]="column.width">
+            {{ column.label }}
+          </th>
+          <th *ngIf="actions.length > 0" style="width: 120px;">Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let row of dataPaginada" class="data-row">
+          <td *ngFor="let column of columns">
+            <ng-container [ngSwitch]="column.type">
+              <!-- Badge Type -->
+              <ng-container *ngSwitchCase="'badge'">
+                <span class="badge" [ngClass]="getBadgeClass(row[column.key], column)">
+                  {{ formatValue(row[column.key], column, row) }}
+                </span>
+              </ng-container>
+              <!-- Custom Type: soporta 'enviado_correo' con iconos -->
+              <ng-container *ngSwitchCase="'custom'">
+                <span *ngIf="column.key === 'enviado_correo'" class="email-status">
+                  <i class="pi pi-envelope" [style.color]="isEmailSent(row, column) ? '#16a34a' : '#dc2626'"></i>
+                  <i class="pi" [ngClass]="isEmailSent(row, column) ? 'pi-check' : 'pi-times'" [style.color]="isEmailSent(row, column) ? '#16a34a' : '#dc2626'"></i>
+                </span>
+                <ng-container *ngIf="column.key !== 'enviado_correo'">
+                  {{ formatValue(row[column.key], column, row) }}
+                </ng-container>
+              </ng-container>
+              <!-- Default/Text/Date/Currency -->
+              <ng-container *ngSwitchDefault>
+                {{ formatValue(row[column.key], column, row) }}
+              </ng-container>
+            </ng-container>
+          </td>
+          <!-- Actions Column -->
+          <td *ngIf="actions.length > 0" class="cell-actions">
+            <div class="action-buttons">
+              <button
+                *ngFor="let action of actions"
+                type="button"
+                class="action-btn"
+                [ngClass]="action.class"
+                [disabled]="isActionDisabled(action, row)"
+                [title]="action.label"
+                (click)="executeAction(action, row)"
+              >
+                <i [class]="action.icon"></i>
+              </button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- Empty State -->
+    <div *ngIf="data.length === 0" class="empty-state">
+      <i class="pi pi-inbox"></i>
+      <p>No hay registros para mostrar</p>
+    </div>
+  </div>
+
+  <!-- Pagination -->
+  <div *ngIf="data.length > 0" class="pagination-container">
+    <div class="pagination-info" *ngIf="showPaginationInfo">
+      <span>Mostrando {{ (currentPage - 1) * itemsPerPage + 1 }} - {{ Math.min(currentPage * itemsPerPage, data.length) }} de {{ data.length }}</span>
+    </div>
+    <div class="pagination-controls">
+      <button
+        type="button"
+        class="pagination-btn"
+        (click)="goToPreviousPage()"
+        [disabled]="currentPage === 1"
+        title="Página anterior"
+      >
+        <i class="pi pi-chevron-left"></i>
+      </button>
+
+      <button
+        *ngFor="let page of getPageNumbers()"
+        type="button"
+        class="pagination-btn page-number"
+        [class.active]="page === currentPage"
+        (click)="goToPage(page)"
+      >
+        {{ page }}
+      </button>
+
+      <button
+        type="button"
+        class="pagination-btn"
+        (click)="goToNextPage()"
+        [disabled]="currentPage === totalPages"
+        title="Página siguiente"
+      >
+        <i class="pi pi-chevron-right"></i>
+      </button>
+    </div>
+  </div>
+</div>

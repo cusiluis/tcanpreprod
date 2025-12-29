@@ -1,0 +1,63 @@
+<!-- AI Chat Button (Fixed Position) -->
+<div class="ai-chat-container">
+  <!-- Chat Button -->
+  <button 
+    class="ai-chat-button" 
+    (click)="toggleChat()"
+    [class.active]="isOpen"
+    title="Asistente Terra">
+    <i class="pi pi-comments"></i>
+  </button>
+
+  <!-- Chat Panel -->
+  <div class="ai-chat-panel" [class.open]="isOpen">
+    <!-- Header -->
+    <div class="chat-header">
+      <div class="header-content">
+        <i class="pi pi-comments"></i>
+        <h3>{{ 'aiChatTitle' | translate }}</h3>
+      </div>
+      <button class="close-btn" (click)="closeChat()">
+        <i class="pi pi-times"></i>
+      </button>
+    </div>
+
+    <!-- Messages Container -->
+    <div class="messages-container" #messagesContainer>
+      <div *ngFor="let message of messages" 
+           class="message" 
+           [class.user]="message.sender === 'user'"
+           [class.bot]="message.sender === 'bot'">
+        <div class="message-avatar" *ngIf="message.sender === 'bot'">
+          <i class="pi pi-comments"></i>
+        </div>
+        <div class="message-content">
+          <p class="message-text">{{ message.text }}</p>
+          <span class="message-time">{{ message.timestamp | date:'short' }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Input Area -->
+    <div class="input-area">
+      <textarea 
+        [(ngModel)]="newMessage"
+        (keypress)="onKeyPress($event)"
+        placeholder="{{ 'aiChatPlaceholder' | translate }}"
+        class="message-input"
+        [disabled]="isSending"
+        rows="1"></textarea>
+      <button 
+        class="send-btn" 
+        (click)="sendMessage()"
+        [disabled]="!newMessage.trim() || isSending">
+        <i [ngClass]="isSending ? 'pi pi-spin pi-spinner' : 'pi pi-send'"></i>
+      </button>
+    </div>
+
+    <!-- Footer Info -->
+    <div class="chat-footer">
+      <p class="footer-text">{{ 'aiChatFooter' | translate }}</p>
+    </div>
+  </div>
+</div>

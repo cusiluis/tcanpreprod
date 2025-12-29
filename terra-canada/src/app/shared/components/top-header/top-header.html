@@ -1,0 +1,43 @@
+<header class="top-header" (click)="closeMenus()">
+  <div class="header-spacer"></div>
+
+  <!-- Right Actions -->
+  <div class="header-actions">
+    <!-- Fullscreen Toggle -->
+    <button
+      class="action-btn"
+      (click)="toggleFullscreen()"
+      [title]="isFullscreen ? ('exitFullscreen' | translate) : ('fullscreen' | translate)">
+      <i [class]="isFullscreen ? 'pi pi-window-minimize' : 'pi pi-window-maximize'"></i>
+    </button>
+
+    <!-- Language Selector -->
+    <div class="action-item language-container" (click)="$event.stopPropagation()">
+      <button
+        class="action-btn"
+        (click)="toggleLanguageMenu()"
+        [title]="'language' | translate">
+        <i class="pi pi-globe"></i>
+        <span class="language-code">{{ language.toUpperCase() }}</span>
+      </button>
+
+      <!-- Language Dropdown -->
+      <div class="language-dropdown" *ngIf="showLanguageMenu">
+        <button
+          class="language-option"
+          [class.active]="language === 'es'"
+          (click)="selectLanguage('es')">
+          <i class="pi pi-check" *ngIf="language === 'es'"></i>
+          {{ 'spanish' | translate }}
+        </button>
+        <button
+          class="language-option"
+          [class.active]="language === 'fr'"
+          (click)="selectLanguage('fr')">
+          <i class="pi pi-check" *ngIf="language === 'fr'"></i>
+          {{ 'french' | translate }}
+        </button>
+      </div>
+    </div>
+  </div>
+</header>
