@@ -1,0 +1,24 @@
+<div class="eventos-layout">
+  <!-- Sidebar -->
+  <app-sidebar></app-sidebar>
+
+  <!-- Main Content -->
+  <main class="eventos-content">
+    <!-- Top Header -->
+    <app-top-header></app-top-header>
+
+    <!-- Page Header -->
+    <div class="page-header">
+      <div class="header-left">
+        <h1>{{ 'eventos' | translate }}</h1>
+        <p class="header-subtitle">{{ 'registroEventos' | translate }}</p>
+      </div>
+    </div>
+
+    <!-- Content Container -->
+    <div class="content-container">
+      <!-- Eventos de Registro -->
+      <app-eventos-registro></app-eventos-registro>
+    </div>
+  </main>
+</div>

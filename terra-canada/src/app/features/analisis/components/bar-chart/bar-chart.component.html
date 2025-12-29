@@ -1,0 +1,22 @@
+<div class="chart-card">
+  <div class="chart-header">
+    <h3>
+      <i class="pi pi-chart-bar"></i>
+      {{ 'analisisComparativoMediosTitulo' | translate }}
+    </h3>
+    <button class="btn-refresh" (click)="refreshChart()" [title]="'actualizar' | translate">
+      <i class="pi pi-refresh"></i>
+    </button>
+  </div>
+
+  <div class="chart-container">
+    <canvas #chartCanvas width="400" height="250"></canvas>
+  </div>
+
+  <div class="chart-legend">
+    <div class="legend-item" *ngFor="let item of legendItems">
+      <span class="legend-color" [style.background-color]="item.color"></span>
+      <span class="legend-label">{{ item.label }}</span>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,157 @@
+<div class="payment-records-section">
+  <div class="section-header">
+    <h3>
+      <i class="pi pi-list"></i>
+      {{ 'registrosPagos' | translate }}
+    </h3>
+  </div>
+
+  <!-- Search and Filters -->
+  <div class="search-filter-container">
+    <form [formGroup]="searchForm" class="search-form">
+      <div class="search-input-group">
+        <i class="pi pi-search"></i>
+        <input
+          type="text"
+          formControlName="search"
+          class="search-input"
+          [placeholder]="'buscarRegistros' | translate"
+        />
+      </div>
+    </form>
+
+    <div class="filter-tabs">
+      <button
+        class="tab-btn"
+        [class.active]="filterTab === 'todos'"
+        (click)="setFilterTab('todos')"
+      >
+        {{ 'todos' | translate }}
+      </button>
+      <button
+        class="tab-btn"
+        [class.active]="filterTab === 'pendientes'"
+        (click)="setFilterTab('pendientes')"
+      >
+        {{ 'pendientes' | translate }}
+      </button>
+      <button
+        class="tab-btn"
+        [class.active]="filterTab === 'pagados'"
+        (click)="setFilterTab('pagados')"
+      >
+        {{ 'pagados' | translate }}
+      </button>
+    </div>
+  </div>
+
+  <!-- Table -->
+  <div class="table-container">
+    <table class="records-table">
+      <thead>
+        <tr>
+          <th>{{ 'fecha' | translate }}</th>
+          <th>Cliente</th>
+          <th>Proveedor</th>
+          <th>{{ 'servicio' | translate }}</th>
+          <th>{{ 'pass' | translate }}</th>
+          <th>{{ 'monto' | translate }}</th>
+          <th>{{ 'monedaLabel' | translate }}</th>
+          <th>{{ 'usuario' | translate }}</th>
+          <th>{{ 'estado' | translate }}</th>
+          <th>{{ 'verificacion' | translate }}</th>
+          <th>Correo</th>
+          <th>{{ 'codigo' | translate }}</th>
+          <th>{{ 'acciones' | translate }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let record of displayedRecords" class="record-row">
+          <td class="cell-date">{{ record?.fecha_creacion }}</td>
+          <td class="cell-client">{{ record?.cliente?.nombre || 'N/A' }}</td>
+          <td class="cell-category">
+            <span class="category-badge">
+              {{ record?.proveedor?.nombre || 'N/A' }}
+            </span>
+          </td>
+          <td class="cell-service">{{ record?.proveedor?.servicio || 'N/A' }}</td>
+          <td class="cell-pass">{{ record?.tarjeta?.numero_enmascarado || '****' }}</td>
+          <td class="cell-amount">${{ record?.monto?.toFixed(2) || '0.00' }}</td>
+          <td class="cell-currency">{{ record?.tarjeta?.tipo || 'N/A' }}</td>
+          <td class="cell-user">{{ record?.registrado_por?.nombre_completo || 'N/A' }}</td>
+          <td class="cell-status">
+            <span class="status-badge" [ngClass]="getStatusClass(record?.estado)">
+              {{ record?.estado }}
+            </span>
+          </td>
+          <td class="cell-verification">
+            <span class="verification-badge" [ngClass]="record?.esta_verificado ? 'verified' : 'not-verified'">
+              {{ record?.esta_verificado ? 'SI' : 'NO' }}
+            </span>
+          </td>
+          <td class="cell-email">
+            <span class="email-status">
+              <i class="pi pi-envelope" [style.color]="record?.enviado_correo ? '#16a34a' : '#dc2626'"></i>
+              <i class="pi" [ngClass]="record?.enviado_correo ? 'pi-check' : 'pi-times'" [style.color]="record?.enviado_correo ? '#16a34a' : '#dc2626'"></i>
+            </span>
+          </td>
+          <td class="cell-code">{{ record?.numero_presta }}</td>
+          <td class="cell-actions">
+            <div class="action-buttons">
+              <button
+                type="button"
+                class="action-btn view-btn"
+                [title]="'ver' | translate"
+                (click)="onAction('view', record)"
+              >
+                <i class="pi pi-eye"></i>
+              </button>
+              <button
+                type="button"
+                class="action-btn edit-btn"
+                [title]="'editar' | translate"
+                (click)="onAction('edit', record)"
+              >
+                <i class="pi pi-pencil"></i>
+              </button>
+              <button
+                type="button"
+                class="action-btn download-btn"
+                [title]="'descargar' | translate"
+                (click)="onAction('download', record)"
+              >
+                <i class="pi pi-download"></i>
+              </button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- Empty State -->
+    <div *ngIf="displayedRecords.length === 0" class="empty-state">
+      <i class="pi pi-inbox"></i>
+      <p>{{ 'noHayRegistros' | translate }}</p>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Contacte a administradores para eliminar -->
+<div class="mini-modal-overlay" *ngIf="showContactAdminModal" (click)="closeContactAdminModal()">
+  <div class="mini-modal-content" (click)="$event.stopPropagation()">
+    <div class="mini-modal-header">
+      <h3>{{ 'eliminar' | translate }}</h3>
+      <button class="btn-close" type="button" (click)="closeContactAdminModal()">
+        <i class="pi pi-times"></i>
+      </button>
+    </div>
+    <div class="mini-modal-body">
+      <p>Para realizar esta acción debe comunicarse con los administradores.</p>
+    </div>
+    <div class="mini-modal-footer">
+      <button type="button" class="btn btn-primary" (click)="closeContactAdminModal()">
+        Aceptar
+      </button>
+    </div>
+  </div>
+  </div>

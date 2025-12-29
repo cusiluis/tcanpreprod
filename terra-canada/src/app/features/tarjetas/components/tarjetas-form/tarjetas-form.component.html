@@ -1,0 +1,210 @@
+<div class="tarjetas-form-wrapper">
+  <!-- Nueva Tarjeta Form -->
+  <form *ngIf="actionType === 'nueva-tarjeta'" (ngSubmit)="submitForm()" class="form-content form-nueva-tarjeta">
+    <div class="form-container">
+      <!-- Lado Izquierdo: Formulario -->
+      <div class="form-left">
+        <h2 class="form-title">
+          <i class="pi pi-credit"></i>
+          {{ 'anadirNuevaTarjeta' | translate }}
+        </h2>
+
+        <!-- Mensajes de error y éxito -->
+        <div *ngIf="errorMessage" class="alert alert-error">
+          <i class="pi pi-exclamation-circle"></i>
+          {{ errorMessage }}
+        </div>
+        <div *ngIf="successMessage" class="alert alert-success">
+          <i class="pi pi-check-circle"></i>
+          {{ successMessage }}
+        </div>
+
+        <div class="form-row">
+      <div class="form-group full-width">
+        <label for="nombre_titular">{{ 'nombreTitular' | translate }}</label>
+        <input
+          id="nombre_titular"
+          type="text"
+          [(ngModel)]="nuevaTarjetaForm.nombre_titular"
+          name="nombre_titular"
+          placeholder="Ej: Juan Pérez"
+          class="form-input"
+          required
+        />
+        <small class="form-hint">Nombre del titular de la tarjeta</small>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group full-width">
+        <label for="numero_tarjeta">{{ 'numeroTarjeta' | translate }}</label>
+        <input
+          id="numero_tarjeta"
+          type="text"
+          [(ngModel)]="nuevaTarjetaForm.numero_tarjeta"
+          (input)="onNumeroTarjetaInput($event)"
+          name="numero_tarjeta"
+          placeholder="Ej: 4111 2222 3533 4444"
+          class="form-input"
+          maxlength="19"
+          inputmode="numeric"
+          required
+        />
+        <small class="form-hint">Número de tarjeta (16 dígitos)</small>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="limite">{{ 'monto' | translate }} Límite ($)</label>
+        <input
+          id="limite"
+          type="number"
+          [(ngModel)]="nuevaTarjetaForm.limite"
+          name="limite"
+          placeholder="Ej: 10000"
+          class="form-input"
+          min="1"
+          step="0.01"
+          required
+        />
+        <small class="form-hint">Límite de crédito</small>
+      </div>
+      <div class="form-group">
+        <label for="tipo_tarjeta_id">{{ 'moneda' | translate }}</label>
+        <select
+          id="tipo_tarjeta_id"
+          [(ngModel)]="nuevaTarjetaForm.tipo_tarjeta_id"
+          name="tipo_tarjeta_id"
+          class="form-input"
+          required
+        >
+          <option value="">-- {{ 'seleccione' | translate }} --</option>
+          <option *ngFor="let tipo of tiposTarjeta" [value]="tipo.id">
+            {{ tipo.nombre }}
+          </option>
+        </select>
+      </div>
+    </div>
+
+        <div class="form-actions">
+          <button type="button" (click)="cancel()" class="btn-cancel" [disabled]="isLoading">
+            <i class="pi pi-times"></i>
+            {{ 'cancelar' | translate }}
+          </button>
+          <button type="submit" class="btn-submit" [disabled]="isLoading">
+            <i class="pi" [ngClass]="isLoading ? 'pi-spin pi-spinner' : 'pi-check'"></i>
+            {{ isLoading ? 'guardando' : 'guardar' | translate }}
+          </button>
+        </div>
+      </div>
+
+      <!-- Lado Derecho: Preview de Tarjeta -->
+      <div class="form-right">
+        <div class="preview-title">
+          <i class="pi pi-eye"></i>
+          Preview
+        </div>
+        <div class="tarjeta-preview">
+          <div class="tarjeta-visual-preview" [ngClass]="'status-activa'">
+            <div class="tarjeta-status-badge status-activa">ACTIVO</div>
+            <div class="tarjeta-type">{{ getTipoTarjetaNombre() }}</div>
+            <div class="tarjeta-chip">
+            </div>
+            <div class="tarjeta-number">
+              {{ (nuevaTarjetaForm.numero_tarjeta || '0000 0000 0000 0000') }}
+            </div>
+            <div class="tarjeta-footer-info">
+              <div class="tarjeta-holder-name">
+                <span class="label">NOMBRE TITULAR</span>
+                <span class="value">{{ (nuevaTarjetaForm.nombre_titular || 'NOMBRE APELLIDO') | uppercase }}</span>
+              </div>
+              <div class="tarjeta-expiry">
+                <span class="label">VÁLIDA HASTA</span>
+                <span class="value">12/28</span>
+              </div>
+            </div>
+            <div class="tarjeta-brand">TERRA</div>
+          </div>
+          <div class="preview-info">
+            <div class="info-item">
+              <span class="label">{{ 'limite' | translate }}:</span>
+              <span class="value">{{ (nuevaTarjetaForm.limite || 0) | currency }}</span>
+            </div>
+            <div class="info-item">
+              <span class="label">{{ 'tipoTarjeta' | translate }}:</span>
+              <span class="value">Débito</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </form>
+
+  <!-- Realizar Cargo Form -->
+  <form *ngIf="actionType === 'recargar-saldo'" (ngSubmit)="submitForm()" class="form-content form-realizar-cargo">
+    <h2 class="form-title">
+      <i class="pi pi-wallet"></i>
+      {{ 'realizarCargo' | translate }}
+    </h2>
+
+    <!-- Mensajes de error y éxito -->
+    <div *ngIf="errorMessage" class="alert alert-error">
+      <i class="pi pi-exclamation-circle"></i>
+      {{ errorMessage }}
+    </div>
+    <div *ngIf="successMessage" class="alert alert-success">
+      <i class="pi pi-check-circle"></i>
+      {{ successMessage }}
+    </div>
+
+    <!-- Información de tarjeta seleccionada -->
+    <div *ngIf="tarjetaSeleccionada" class="tarjeta-info-box">
+      <div class="info-row">
+        <span class="info-label">{{ 'nombreTitular' | translate }}:</span>
+        <span class="info-value">{{ tarjetaSeleccionada.nombre_titular }}</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">{{ 'saldo' | translate }} Actual:</span>
+        <span class="info-value">{{ tarjetaSeleccionada.saldo | currency }}</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">{{ 'limite' | translate }}:</span>
+        <span class="info-value">{{ tarjetaSeleccionada.limite | currency }}</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">{{ 'tipo' | translate }}:</span>
+        <span class="info-value">{{ tarjetaSeleccionada.tipo.nombre }}</span>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group full-width">
+        <label for="monto">{{ 'monto' | translate }} a Cargar ($)</label>
+        <input
+          id="monto"
+          type="number"
+          [(ngModel)]="realizarCargoForm.monto"
+          name="monto"
+          placeholder="Ej: 5000"
+          class="form-input"
+          min="0.01"
+          step="0.01"
+          required
+        />
+        <small class="form-hint">Ingresa el monto que deseas cargar a tu tarjeta</small>
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <button type="button" (click)="cancel()" class="btn-cancel" [disabled]="isLoading">
+        <i class="pi pi-times"></i>
+        {{ 'cancelar' | translate }}
+      </button>
+      <button type="submit" class="btn-submit" [disabled]="isLoading">
+        <i class="pi" [ngClass]="isLoading ? 'pi-spin pi-spinner' : 'pi-wallet'"></i>
+        {{ isLoading ? 'guardando' : 'realizarCargo' | translate }}
+      </button>
+    </div>
+  </form>
+</div>

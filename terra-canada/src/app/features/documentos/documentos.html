@@ -1,0 +1,55 @@
+<div class="documentos-layout">
+  <!-- Sidebar -->
+  <app-sidebar></app-sidebar>
+
+  <!-- Main Content -->
+  <main class="documentos-content">
+    <!-- Top Header -->
+    <app-top-header></app-top-header>
+
+    <!-- Page Header -->
+    <div class="page-header">
+      <div class="header-left">
+        <h1>{{ 'documentos' | translate }}</h1>
+        <p class="header-subtitle">{{ 'visualizacionDocumentos' | translate }}</p>
+      </div>
+    </div>
+
+    <!-- Filter Bar -->
+    <div class="filter-bar">
+      <div class="filter-group">
+        <label for="date-filter">{{ 'filtrarPorFecha' | translate }}:</label>
+        <input
+          id="date-filter"
+          type="date"
+          [(ngModel)]="selectedDateFilter"
+          (change)="onDateFilterChange()"
+          class="date-input"
+        />
+        <button *ngIf="selectedDateFilter" (click)="clearDateFilter()" class="btn-clear-filter">
+          <i class="pi pi-times"></i>
+          {{ 'limpiar' | translate }}
+        </button>
+      </div>
+      <div class="filter-group">
+        <label for="search-filter">{{ 'buscar' | translate }}:</label>
+        <input
+          id="search-filter"
+          type="text"
+          [(ngModel)]="searchTerm"
+          class="text-input"
+          [placeholder]="'buscar' | translate"
+        />
+      </div>
+    </div>
+
+    <!-- Content Container -->
+    <div class="content-container">
+      <!-- Documents List -->
+      <app-documentos-list
+        [dateFilter]="selectedDateFilter"
+        [searchTerm]="searchTerm"
+      ></app-documentos-list>
+    </div>
+  </main>
+</div>

@@ -1,0 +1,26 @@
+<div class="dashboard-layout">
+  <!-- Sidebar -->
+  <app-sidebar></app-sidebar>
+
+  <!-- Main Content -->
+  <main class="dashboard-content">
+    <!-- Top Header -->
+    <app-top-header></app-top-header>
+
+    <!-- Page Header -->
+    <div class="page-header">
+      <div class="header-left">
+        <h1>{{ 'dashboard' | translate }}</h1>
+        <p class="header-subtitle">{{ 'resumenGeneral' | translate }}</p>
+      </div>
+    </div>
+
+    <!-- Stats Grid -->
+    <div class="stats-grid">
+      <app-stat-card *ngFor="let stat of stats" [stat]="stat"></app-stat-card>
+    </div>
+
+    <!-- Recent Activity -->
+    <app-recent-activity [activities]="activities"></app-recent-activity>
+  </main>
+</div>

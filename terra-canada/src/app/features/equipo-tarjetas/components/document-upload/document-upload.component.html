@@ -1,0 +1,116 @@
+<div class="document-upload-section">
+  <div class="document-cards-grid">
+    <div *ngFor="let card of documentCards" class="document-card">
+      <div class="card-header">
+        <i [ngClass]="card.icon"></i>
+        <h4>{{ card.title }}</h4>
+      </div>
+
+      <div class="card-content">
+        <div
+          class="upload-area"
+          (click)="triggerFileInput(card.id)"
+        >
+          <i class="pi pi-cloud-upload upload-icon"></i>
+          <p class="upload-text">{{ card.description }}</p>
+          <p class="upload-hint" *ngIf="card.id === 'invoices'">
+            (Hasta 5 archivos PDF)
+          </p>
+          <p class="upload-hint" *ngIf="card.id === 'bank-doc'">
+            (Hasta 1 archivo PDF)
+          </p>
+        </div>
+
+        <input
+          type="file"
+          [id]="'file-input-' + card.id"
+          [multiple]="card.id !== 'bank-doc'"
+          accept=".pdf,application/pdf,application/x-pdf"
+          (change)="onFileSelected($event, card.id)"
+          style="display: none"
+        />
+
+        <div *ngIf="card.files.length > 0" class="files-list">
+          <div *ngFor="let file of card.files; let i = index" class="file-item">
+            <i class="pi pi-file"></i>
+            <span class="file-name">{{ file.name }}</span>
+            <button
+              type="button"
+              class="btn-remove"
+              (click)="removeFile(card.id, i)"
+              title="Eliminar archivo"
+            >
+              <i class="pi pi-times"></i>
+            </button>
+          </div>
+        </div>
+
+        <div *ngIf="card.files.length === 0" class="no-files">
+          <p>{{ 'nohayDocumentos' | translate }}</p>
+        </div>
+      </div>
+
+      <div class="card-footer" *ngIf="card.id === 'invoices'">
+        <button
+          type="button"
+          class="btn-search"
+          (click)="onScanCard(card.id)"
+          [disabled]="isScanning"
+        >
+          <i
+            class="pi"
+            [ngClass]="isScanning ? 'pi-spinner pi-spin' : 'pi-search'"
+          ></i>
+          <span>
+            {{ isScanning ? 'Escaneando...' : ('escanearDocumento' | translate) }}
+          </span>
+        </button>
+        <div
+          class="scan-status"
+          *ngIf="scanMessage || scanError"
+          [ngClass]="{
+            'scan-status--success': isScanSuccess,
+            'scan-status--error': !isScanSuccess && scanError
+          }"
+        >
+          <i
+            class="pi"
+            [ngClass]="isScanSuccess ? 'pi-check-circle' : 'pi-exclamation-triangle'"
+          ></i>
+          <span>{{ scanMessage || scanError }}</span>
+        </div>
+      </div>
+
+      <div class="card-footer" *ngIf="card.id === 'bank-doc'">
+        <button
+          type="button"
+          class="btn-search"
+          (click)="onScanCard(card.id)"
+          [disabled]="isScanning"
+        >
+          <i
+            class="pi"
+            [ngClass]="isScanning ? 'pi-spinner pi-spin' : 'pi-search'"
+          ></i>
+          <span>
+            {{ isScanning ? 'Escaneando...' : 'Escanear Documento Banco' }}
+          </span>
+        </button>
+        <div
+          class="scan-status"
+          *ngIf="scanMessage || scanError"
+          [ngClass]="{
+            'scan-status--success': isScanSuccess,
+            'scan-status--error': !isScanSuccess && scanError
+          }"
+        >
+          <i
+            class="pi"
+            [ngClass]="isScanSuccess ? 'pi-check-circle' : 'pi-exclamation-triangle'"
+          ></i>
+          <span>{{ scanMessage || scanError }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

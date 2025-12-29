@@ -1,0 +1,403 @@
+.tarjetas-form-wrapper {
+  background: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+
+  .form-content {
+    padding: 20px;
+
+    &.form-nueva-tarjeta {
+      .form-container {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 24px;
+      }
+
+      .form-title {
+        margin: 0 0 16px 0;
+        font-size: 16px;
+        font-weight: 600;
+        color: #333;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+
+        i {
+          color: #2d7a7a;
+          font-size: 18px;
+        }
+      }
+
+      .form-left {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+
+      .form-right {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+
+        .preview-title {
+          font-size: 14px;
+          font-weight: 600;
+          color: #333;
+          display: flex;
+          align-items: center;
+          gap: 6px;
+
+          i {
+            color: #2d7a7a;
+          }
+        }
+
+        .tarjeta-preview {
+          display: flex;
+          flex-direction: column;
+          gap: 12px;
+
+          .tarjeta-visual-preview {
+            background: linear-gradient(135deg, #2d7a7a 0%, #1f5555 100%);
+            border-radius: 12px;
+            padding: 20px;
+            color: white;
+            position: relative;
+            overflow: hidden;
+            min-height: 200px;
+            box-shadow: 0 8px 24px rgba(45, 122, 122, 0.3);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+
+            .tarjeta-status-badge {
+              position: absolute;
+              top: 12px;
+              right: 12px;
+              background: rgba(76, 175, 80, 0.3);
+              color: #4caf50;
+              padding: 4px 12px;
+              border-radius: 20px;
+              font-size: 10px;
+              font-weight: 700;
+              letter-spacing: 1px;
+            }
+
+            .tarjeta-type {
+              font-size: 11px;
+              font-weight: 600;
+              letter-spacing: 2px;
+              opacity: 0.8;
+              margin-bottom: 8px;
+            }
+
+            .tarjeta-chip {
+              width: 50px;
+              height: 40px;
+              background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+              border-radius: 6px;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              margin-bottom: 16px;
+              box-shadow: 0 4px 12px rgba(255, 215, 0, 0.3);
+
+              .chip-icon {
+                font-size: 24px;
+              }
+            }
+
+            .tarjeta-number {
+              font-size: 18px;
+              font-weight: 600;
+              letter-spacing: 3px;
+              margin-bottom: 20px;
+              font-family: 'Courier New', monospace;
+            }
+
+            .tarjeta-footer-info {
+              display: flex;
+              justify-content: space-between;
+              align-items: flex-end;
+              margin-bottom: 12px;
+
+              .tarjeta-holder-name,
+              .tarjeta-expiry {
+                display: flex;
+                flex-direction: column;
+                gap: 4px;
+
+                .label {
+                  font-size: 9px;
+                  opacity: 0.7;
+                  letter-spacing: 1px;
+                }
+
+                .value {
+                  font-size: 12px;
+                  font-weight: 600;
+                }
+              }
+
+              .tarjeta-expiry {
+                text-align: right;
+              }
+            }
+
+            .tarjeta-brand {
+              font-size: 16px;
+              font-weight: 700;
+              letter-spacing: 2px;
+              text-align: right;
+            }
+          }
+
+          .preview-info {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            padding: 12px;
+            background: #f5f5f5;
+            border-radius: 8px;
+
+            .info-item {
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              font-size: 12px;
+
+              .label {
+                color: #666;
+                font-weight: 600;
+              }
+
+              .value {
+                color: #2d7a7a;
+                font-weight: 700;
+              }
+            }
+          }
+        }
+      }
+    }
+
+    &.form-realizar-cargo {
+      .form-title {
+        margin: 0 0 16px 0;
+        font-size: 16px;
+        font-weight: 600;
+        color: #333;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+
+        i {
+          color: #2d7a7a;
+          font-size: 18px;
+        }
+      }
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+      margin-bottom: 16px;
+
+      &:last-of-type {
+        margin-bottom: 0;
+      }
+
+      .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+
+        &.full-width {
+          grid-column: 1 / -1;
+        }
+
+        label {
+          font-size: 12px;
+          font-weight: 600;
+          color: #333333;
+        }
+
+        .form-input {
+          padding: 10px 12px;
+          border: 1px solid #d0d0d0;
+          border-radius: 6px;
+          font-size: 13px;
+          color: #333333;
+          transition: all 0.3s ease;
+          font-family: inherit;
+
+          &:focus {
+            outline: none;
+            border-color: #2d7a7a;
+            box-shadow: 0 0 0 3px rgba(45, 122, 122, 0.1);
+          }
+
+          &::placeholder {
+            color: #cccccc;
+          }
+        }
+
+        .form-textarea {
+          resize: vertical;
+          min-height: 80px;
+        }
+      }
+    }
+
+    .form-actions {
+      display: flex;
+      gap: 12px;
+      margin-top: 24px;
+      padding-top: 16px;
+      border-top: 1px solid #e0e0e0;
+
+      button {
+        flex: 1;
+        padding: 10px 16px;
+        border: none;
+        border-radius: 6px;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+
+        i {
+          font-size: 14px;
+        }
+
+        &.btn-cancel {
+          background: #f5f5f5;
+          color: #666666;
+          border: 1px solid #d0d0d0;
+
+          &:hover {
+            background: #e0e0e0;
+            color: #333333;
+          }
+        }
+
+        &.btn-submit {
+          background: #2d7a7a;
+          color: white;
+
+          &:hover {
+            background: #1a4a4a;
+          }
+
+          &:active {
+            transform: scale(0.98);
+          }
+        }
+      }
+    }
+  }
+}
+
+/* Dark Theme */
+html.dark-theme {
+  .tarjetas-form-wrapper {
+    background: #2d2d2d;
+    border-color: #444444;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+
+    .form-header {
+      background: #3a3a3a;
+      border-bottom-color: #4a9b9b;
+
+      h3 {
+        color: #e0e0e0;
+      }
+    }
+
+    .form-content {
+      .form-row {
+        .form-group {
+          label {
+            color: #e0e0e0;
+          }
+
+          .form-input {
+            background: #3a3a3a;
+            border-color: #444444;
+            color: #e0e0e0;
+
+            &:focus {
+              border-color: #4a9b9b;
+              box-shadow: 0 0 0 3px rgba(74, 155, 155, 0.2);
+            }
+
+            &::placeholder {
+              color: #666666;
+            }
+          }
+        }
+      }
+
+      .form-actions {
+        border-top-color: #444444;
+
+        button {
+          &.btn-cancel {
+            background: #3a3a3a;
+            color: #b0b0b0;
+            border-color: #444444;
+
+            &:hover {
+              background: #444444;
+              color: #e0e0e0;
+            }
+          }
+
+          &.btn-submit {
+            background: #4a9b9b;
+
+            &:hover {
+              background: #2d6b6b;
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .tarjetas-form-wrapper {
+    .form-content {
+      padding: 16px;
+
+      .form-row {
+        grid-template-columns: 1fr;
+        gap: 12px;
+
+        .form-group {
+          &.full-width {
+            grid-column: 1;
+          }
+        }
+      }
+
+      .form-actions {
+        flex-direction: column;
+        gap: 10px;
+
+        button {
+          width: 100%;
+        }
+      }
+    }
+  }
+}

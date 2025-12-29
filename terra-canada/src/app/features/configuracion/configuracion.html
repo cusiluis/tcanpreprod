@@ -1,0 +1,31 @@
+<div class="configuracion-layout">
+  <!-- Notificaciones -->
+  <app-notification
+    [notifications]="notifications"
+    (notificationDismissed)="onNotificationDismissed($event)"
+  ></app-notification>
+  <!-- Sidebar -->
+  <app-sidebar></app-sidebar>
+
+  <!-- Main Content -->
+  <div class="configuracion-content">
+    <!-- Top Header -->
+    <app-top-header></app-top-header>
+
+    <!-- Page Header -->
+    <div class="page-header">
+      <div class="header-content">
+        <h1>
+          <i class="pi pi-cog"></i>
+          {{ 'configuracion' | translate }}
+        </h1>
+        <p class="header-subtitle">{{ 'personalizaExperiencia' | translate }}</p>
+      </div>
+    </div>
+
+    <!-- Content Container -->
+    <div class="content-container">
+      <router-outlet></router-outlet>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,649 @@
+.financieros-bancaria-layout {
+  display: flex;
+  height: 100vh;
+  background: #f5f5f5;
+
+  .financieros-bancaria-content {
+    flex: 1;
+    margin-left: 220px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+
+    .page-header {
+      padding: 24px;
+      border-bottom: 1px solid #e0e0e0;
+      background: white;
+      flex-shrink: 0;
+
+      .header-left {
+        h1 {
+          margin: 0;
+          font-size: 28px;
+          font-weight: 700;
+          color: #333333;
+        }
+
+        .header-subtitle {
+          margin: 4px 0 0;
+          font-size: 13px;
+          color: #999999;
+        }
+      }
+    }
+
+    .content-container {
+      flex: 1;
+      padding: 24px;
+      overflow-y: auto;
+
+      .action-buttons-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+        margin-bottom: 24px;
+
+        .btn-action {
+          padding: 16px 24px;
+          background: #2d7a7a;
+          color: white;
+          border: none;
+          border-radius: 8px;
+          font-size: 15px;
+          font-weight: 600;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 12px;
+          transition: all 0.3s ease;
+          box-shadow: 0 2px 8px rgba(45, 122, 122, 0.15);
+
+          &:hover {
+            background: #1f5555;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(45, 122, 122, 0.25);
+          }
+
+          i {
+            font-size: 18px;
+          }
+        }
+
+        .btn-new-payment {
+          background: #2d7a7a;
+
+          &:hover {
+            background: #1f5555;
+          }
+        }
+
+        .btn-upload-document {
+          background: #2d7a7a;
+
+          &:hover {
+            background: #1f5555;
+          }
+        }
+      }
+
+      /* Modal Styles */
+      .modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+        animation: fadeIn 0.3s ease;
+
+        .modal-content {
+          background: white;
+          border-radius: 12px;
+          box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+          width: 90%;
+          max-width: 600px;
+          max-height: 90vh;
+          overflow-y: auto;
+          animation: slideUp 0.3s ease;
+
+          &.modal-large {
+            max-width: 900px;
+          }
+
+          .modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 24px;
+            border-bottom: 1px solid #e0e0e0;
+            flex-shrink: 0;
+
+            h2 {
+              margin: 0;
+              font-size: 20px;
+              font-weight: 700;
+              color: #333333;
+            }
+
+            .btn-close {
+              background: none;
+              border: none;
+              font-size: 24px;
+              color: #999999;
+              cursor: pointer;
+              padding: 0;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              transition: all 0.3s ease;
+
+              &:hover {
+                color: #333333;
+                transform: rotate(90deg);
+              }
+            }
+          }
+
+          .modal-body {
+            padding: 24px;
+
+            /* Edit Payment Form Styles */
+            .edit-payment-form {
+              // Estilos comunes para todos los botones dentro del formulario de edición
+              .btn {
+                padding: 10px 20px;
+                border: none;
+                border-radius: 6px;
+                font-size: 13px;
+                font-weight: 600;
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                transition: all 0.3s ease;
+                min-width: 120px;
+                justify-content: center;
+
+                i {
+                  font-size: 14px;
+                }
+
+                &.btn-primary {
+                  background: #2d7a7a;
+                  color: #ffffff;
+                  box-shadow: 0 2px 8px rgba(45, 122, 122, 0.15);
+
+                  &:hover:not(:disabled) {
+                    background: #1f5555;
+                    transform: translateY(-2px);
+                    box-shadow: 0 4px 12px rgba(45, 122, 122, 0.25);
+                  }
+
+                  &:disabled {
+                    background: #9ca3af;
+                    cursor: not-allowed;
+                    opacity: 0.7;
+                  }
+                }
+
+                &.btn-secondary {
+                  background: #f0f0f0;
+                  color: #333333;
+                  border: 1px solid #d0d0d0;
+
+                  &:hover {
+                    background: #e0e0e0;
+                    border-color: #b0b0b0;
+                  }
+                }
+              }
+
+              .form-section {
+                margin-bottom: 24px;
+                padding-bottom: 20px;
+                border-bottom: 1px solid #e0e0e0;
+
+                &:last-of-type {
+                  border-bottom: none;
+                  margin-bottom: 0;
+                  padding-bottom: 0;
+                }
+
+                .section-title {
+                  font-size: 14px;
+                  font-weight: 700;
+                  color: #2d7a7a;
+                  margin: 0 0 16px 0;
+                  text-transform: uppercase;
+                  letter-spacing: 0.5px;
+                }
+
+                .section-description {
+                  font-size: 12px;
+                  color: #777777;
+                  margin: 0 0 12px 0;
+                  line-height: 1.5;
+                }
+
+                &.validation-section {
+                  border: 1px dashed #c7dfdf;
+                  border-radius: 8px;
+                  padding: 16px 16px 20px;
+                  background: #f9fbfb;
+                  margin-top: 8px;
+                }
+
+                .form-group {
+                  display: flex;
+                  flex-direction: column;
+                  margin-bottom: 16px;
+
+                  &:last-child {
+                    margin-bottom: 0;
+                  }
+
+                  label {
+                    font-size: 13px;
+                    font-weight: 600;
+                    color: #333333;
+                    margin-bottom: 8px;
+                    display: block;
+                  }
+
+                  .form-control {
+                    padding: 10px 12px;
+                    border: 1px solid #d0d0d0;
+                    border-radius: 6px;
+                    font-size: 13px;
+                    color: #333333;
+                    background: white;
+                    transition: all 0.2s ease;
+                    font-family: inherit;
+
+                    &:focus {
+                      outline: none;
+                      border-color: #2d7a7a;
+                      box-shadow: 0 0 0 3px rgba(45, 122, 122, 0.1);
+                    }
+
+                    &:disabled {
+                      background: #f0f0f0;
+                      color: #999999;
+                      cursor: not-allowed;
+                    }
+
+                    &.is-invalid {
+                      border-color: #ff6b6b;
+                      background: #fff5f5;
+
+                      &:focus {
+                        box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.1);
+                      }
+                    }
+                  }
+
+                  .textarea-control {
+                    resize: vertical;
+                    min-height: 100px;
+                    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                  }
+
+                  .form-error {
+                    font-size: 12px;
+                    color: #ff6b6b;
+                    margin-top: 4px;
+                    display: block;
+                  }
+
+                  .form-helper {
+                    font-size: 12px;
+                    color: #666666;
+                    margin-top: 4px;
+                  }
+
+                  .scan-status {
+                    margin-top: 8px;
+                    font-size: 13px;
+                    display: flex;
+                    align-items: center;
+                    gap: 6px;
+
+                    &--success {
+                      color: #2e7d32;
+                    }
+
+                    &--info {
+                      color: #2d7a7a;
+                    }
+                  }
+
+                  &.checkbox-group {
+                    .checkbox-label {
+                      display: flex;
+                      align-items: center;
+                      cursor: pointer;
+                      margin-bottom: 0;
+                      font-weight: 500;
+                      color: #333333;
+
+                      .checkbox-input {
+                        width: 18px;
+                        height: 18px;
+                        margin-right: 10px;
+                        cursor: pointer;
+                        accent-color: #2d7a7a;
+                      }
+
+                      .checkbox-text {
+                        user-select: none;
+                      }
+
+                      &:hover {
+                        color: #2d7a7a;
+                      }
+                    }
+                  }
+                }
+              }
+
+              .form-actions {
+                display: flex;
+                gap: 12px;
+                justify-content: flex-end;
+                margin-top: 24px;
+                padding-top: 20px;
+                border-top: 1px solid #e0e0e0;
+              }
+            }
+
+            /* View Details Styles */
+            .view-details {
+              margin-bottom: 24px;
+
+              .detail-row {
+                display: flex;
+                padding: 12px 0;
+                border-bottom: 1px solid #f0f0f0;
+
+                &:last-child {
+                  border-bottom: none;
+                }
+
+                .detail-label {
+                  font-weight: 600;
+                  color: #666666;
+                  min-width: 180px;
+                  font-size: 13px;
+                }
+
+                .detail-value {
+                  color: #333333;
+                  font-size: 13px;
+                  flex: 1;
+                  word-break: break-word;
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Dark Theme */
+html.dark-theme {
+  .financieros-bancaria-layout {
+    background: #1a1a1a;
+
+    .financieros-bancaria-content {
+      .page-header {
+        background: #2d2d2d;
+        border-bottom-color: #444444;
+
+        h1 {
+          color: #e0e0e0;
+        }
+
+        .header-subtitle {
+          color: #888888;
+        }
+      }
+
+      .content-container {
+        background: #1a1a1a;
+
+        .action-buttons-row {
+          .btn-action {
+            background: #4a9b9b;
+
+            &:hover {
+              background: #5ab5b5;
+            }
+          }
+        }
+
+        .modal-overlay {
+          .modal-content {
+            background: #2d2d2d;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+
+            .modal-header {
+              border-bottom-color: #444444;
+
+              h2 {
+                color: #e0e0e0;
+              }
+
+              .btn-close {
+                color: #888888;
+
+                &:hover {
+                  color: #e0e0e0;
+                }
+              }
+            }
+
+            .modal-body {
+              color: #e0e0e0;
+
+              .edit-payment-form {
+                .form-section {
+                  border-bottom-color: #444444;
+
+                  .section-title {
+                    color: #4a9b9b;
+                  }
+
+                  .form-group {
+                    label {
+                      color: #e0e0e0;
+                    }
+
+                    .form-control {
+                      background: #3a3a3a;
+                      border-color: #444444;
+                      color: #e0e0e0;
+
+                      &:focus {
+                        border-color: #4a9b9b;
+                        box-shadow: 0 0 0 3px rgba(74, 155, 155, 0.1);
+                      }
+
+                      &.is-invalid {
+                        background: #4a2a2a;
+                        border-color: #ff6b6b;
+                      }
+                    }
+
+                    .form-error {
+                      color: #ff8888;
+                    }
+
+                    &.checkbox-group {
+                      .checkbox-label {
+                        color: #e0e0e0;
+
+                        &:hover {
+                          color: #4a9b9b;
+                        }
+                      }
+                    }
+                  }
+                }
+
+                .form-actions {
+                  border-top-color: #444444;
+
+                  .btn {
+                    &.btn-primary {
+                      background: #4a9b9b;
+                      box-shadow: 0 2px 8px rgba(74, 155, 155, 0.15);
+
+                      &:hover:not(:disabled) {
+                        background: #5ab5b5;
+                        box-shadow: 0 4px 12px rgba(74, 155, 155, 0.25);
+                      }
+                    }
+
+                    &.btn-secondary {
+                      background: #3a3a3a;
+                      color: #e0e0e0;
+                      border-color: #444444;
+
+                      &:hover {
+                        background: #444444;
+                        border-color: #555555;
+                      }
+                    }
+                  }
+                }
+              }
+
+              .view-details {
+                .detail-row {
+                  border-bottom-color: #3a3a3a;
+
+                  .detail-label {
+                    color: #999999;
+                  }
+
+                  .detail-value {
+                    color: #e0e0e0;
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .financieros-bancaria-layout {
+    .financieros-bancaria-content {
+      .content-container {
+        padding: 16px;
+
+        .action-buttons-row {
+          gap: 12px;
+        }
+
+        .modal-overlay {
+          .modal-content {
+            max-width: 500px;
+
+            &.modal-large {
+              max-width: 800px;
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .financieros-bancaria-layout {
+    flex-direction: column;
+
+    .financieros-bancaria-content {
+      margin-left: 0;
+
+      .page-header {
+        padding: 16px;
+
+        h1 {
+          font-size: 24px;
+        }
+      }
+
+      .content-container {
+        padding: 12px;
+
+        .action-buttons-row {
+          grid-template-columns: 1fr;
+          gap: 12px;
+
+          .btn-action {
+            padding: 12px 16px;
+            font-size: 14px;
+          }
+        }
+
+        .modal-overlay {
+          .modal-content {
+            width: 95%;
+            max-width: 100%;
+            max-height: 85vh;
+
+            &.modal-large {
+              max-width: 100%;
+            }
+
+            .modal-header {
+              padding: 16px;
+
+              h2 {
+                font-size: 18px;
+              }
+            }
+
+            .modal-body {
+              padding: 16px;
+            }
+          }
+        }
+      }
+    }
+  }
+}

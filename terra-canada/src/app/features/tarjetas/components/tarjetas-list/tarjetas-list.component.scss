@@ -1,0 +1,481 @@
+/**
+ * Estilos para TarjetasListComponent
+ * Grid dinámico de tarjetas con diseño de tarjeta de débito real
+ */
+
+.tarjetas-grid-wrapper {
+  width: 100%;
+  padding: 0;
+}
+
+.tarjetas-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 24px;
+  width: 100%;
+
+  /**
+   * Botón para Añadir Nueva Tarjeta
+   */
+  .tarjeta-add-button {
+    background: linear-gradient(135deg, #f5f5f5 0%, #efefef 100%);
+    border: 2px dashed #d0d0d0;
+    border-radius: 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 380px;
+    transition: all 0.3s ease;
+
+    &:hover {
+      background: linear-gradient(135deg, #efefef 0%, #e8e8e8 100%);
+      border-color: #2d7a7a;
+      box-shadow: 0 8px 24px rgba(45, 122, 122, 0.15);
+    }
+
+    .add-button-content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      color: #666;
+
+      i {
+        font-size: 32px;
+        color: #2d7a7a;
+      }
+
+      p {
+        margin: 0;
+        font-size: 14px;
+        font-weight: 600;
+      }
+    }
+  }
+
+  /**
+   * Contenedor de Tarjeta
+   */
+  .tarjeta-container {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+}
+
+/**
+ * Tarjeta Visual - Estilo Débito Real
+ */
+.tarjeta-visual {
+  background: linear-gradient(135deg, #2d7a7a 0%, #1f5555 100%);
+  border-radius: 12px;
+  padding: 24px;
+  color: white;
+  position: relative;
+  overflow: hidden;
+  min-height: 220px;
+  box-shadow: 0 8px 24px rgba(45, 122, 122, 0.3);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: all 0.3s ease;
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 32px rgba(45, 122, 122, 0.4);
+  }
+
+  /**
+   * Estados de tarjeta
+   */
+  &.status-activa {
+    background: linear-gradient(135deg, #2d7a7a 0%, #1f5555 100%);
+  }
+
+  &.status-bloqueada,
+  &.status-desactivada {
+    background: linear-gradient(135deg, #999 0%, #666 100%);
+    opacity: 0.7;
+  }
+
+  /**
+   * Badge de Estado
+   */
+  .tarjeta-status-badge {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: rgba(255, 255, 255, 0.2);
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    backdrop-filter: blur(10px);
+
+    &.status-activa {
+      background: rgba(76, 175, 80, 0.3);
+      color: #4caf50;
+    }
+
+    &.status-bloqueada,
+    &.status-desactivada {
+      background: rgba(244, 67, 54, 0.3);
+      color: #f44336;
+    }
+  }
+
+  /**
+   * Tipo de Tarjeta
+   */
+  .tarjeta-type {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    opacity: 0.8;
+    margin-bottom: 8px;
+  }
+
+  /**
+   * Chip
+   */
+  .tarjeta-chip {
+    width: 50px;
+    height: 40px;
+    background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 16px;
+    box-shadow: 0 4px 12px rgba(255, 215, 0, 0.3);
+
+    .chip-icon {
+      font-size: 24px;
+    }
+  }
+
+  /**
+   * Número de Tarjeta
+   */
+  .tarjeta-number {
+    font-size: 20px;
+    font-weight: 600;
+    letter-spacing: 3px;
+    margin-bottom: 24px;
+    font-family: 'Courier New', monospace;
+  }
+
+  /**
+   * Información del Footer
+   */
+  .tarjeta-footer-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: 12px;
+
+    .tarjeta-holder-name {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+
+      .label {
+        font-size: 10px;
+        opacity: 0.7;
+        letter-spacing: 1px;
+      }
+
+      .value {
+        font-size: 14px;
+        font-weight: 600;
+      }
+    }
+
+    .tarjeta-expiry {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      text-align: right;
+
+      .label {
+        font-size: 10px;
+        opacity: 0.7;
+        letter-spacing: 1px;
+      }
+
+      .value {
+        font-size: 14px;
+        font-weight: 600;
+      }
+    }
+  }
+
+  /**
+   * Brand
+   */
+  .tarjeta-brand {
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-align: right;
+  }
+}
+
+/**
+ * Sección de Información
+ */
+.tarjeta-info-section {
+  background: white;
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+
+  /**
+   * Sección de Saldo y Límite (mejorada)
+   */
+  .balance-section {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    margin-bottom: 20px;
+    padding: 16px;
+    background: linear-gradient(135deg, rgba(45, 122, 122, 0.05) 0%, rgba(45, 122, 122, 0.02) 100%);
+    border-radius: 8px;
+    border: 1px solid #e8f0f0;
+
+    .balance-item {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      align-items: center;
+      text-align: center;
+
+      .balance-label,
+      .limit-label {
+        font-size: 12px;
+        color: #666;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+      }
+
+      .balance-amount,
+      .limit-amount {
+        font-size: 18px;
+        font-weight: 700;
+        color: #2d7a7a;
+        line-height: 1.2;
+      }
+
+      .balance-amount {
+        color: #1f5555;
+      }
+
+      .limit-amount {
+        color: #2d7a7a;
+      }
+    }
+  }
+
+  /**
+   * Barra de Progreso (mejorada con transiciones suaves)
+   */
+  .tarjeta-progress {
+    margin-bottom: 16px;
+    padding: 0 0 12px 0;
+
+    .progress-bar {
+      width: 100%;
+      height: 8px;
+      background: #e0e0e0;
+      border-radius: 4px;
+      overflow: hidden;
+      box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+
+      .progress-fill {
+        height: 100%;
+        transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.4s ease;
+        border-radius: 4px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+      }
+    }
+  }
+
+  /**
+   * Controles
+   */
+  .tarjeta-controls {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 12px;
+
+    .btn-cambiar-estado {
+      flex: 1;
+      padding: 10px 12px;
+      background: white;
+      color: #333;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: all 0.3s ease;
+
+      .btn-text {
+        display: inline;
+      }
+
+      i {
+        font-size: 14px;
+      }
+
+      &:hover {
+        border-color: #2d7a7a;
+        box-shadow: 0 4px 12px rgba(45, 122, 122, 0.2);
+        transform: translateY(-2px);
+      }
+
+      &:active {
+        transform: translateY(0);
+      }
+
+      // Estados con colores dinámicos
+      &.estado-activo {
+        border-color: #4caf50;
+        background-color: rgba(76, 175, 80, 0.08);
+        color: #2d7a7a;
+
+        i {
+          color: #4caf50;
+        }
+
+        &:hover {
+          background-color: rgba(76, 175, 80, 0.15);
+          box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+        }
+      }
+
+      &.estado-bloqueado {
+        border-color: #ff9800;
+        background-color: rgba(255, 152, 0, 0.08);
+        color: #e65100;
+
+        i {
+          color: #ff9800;
+        }
+
+        &:hover {
+          background-color: rgba(255, 152, 0, 0.15);
+          box-shadow: 0 4px 12px rgba(255, 152, 0, 0.3);
+        }
+      }
+
+      &.estado-cancelado {
+        border-color: #f44336;
+        background-color: rgba(244, 67, 54, 0.08);
+        color: #c62828;
+
+        i {
+          color: #f44336;
+        }
+
+        &:hover {
+          background-color: rgba(244, 67, 54, 0.15);
+          box-shadow: 0 4px 12px rgba(244, 67, 54, 0.3);
+        }
+      }
+
+      &.estado-desactivado {
+        border-color: #999;
+        background-color: rgba(153, 153, 153, 0.08);
+        color: #666;
+
+        i {
+          color: #999;
+        }
+
+        &:hover {
+          background-color: rgba(153, 153, 153, 0.15);
+          box-shadow: 0 4px 12px rgba(153, 153, 153, 0.3);
+        }
+      }
+    }
+
+    .btn-realizar-cargo {
+      flex: 1;
+      padding: 8px 12px;
+      background: #2d7a7a;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+
+      &:hover:not(:disabled) {
+        background: #1f5555;
+        box-shadow: 0 4px 12px rgba(45, 122, 122, 0.3);
+      }
+
+      &:disabled {
+        background: #ccc;
+        cursor: not-allowed;
+        opacity: 0.6;
+      }
+
+      i {
+        font-size: 14px;
+      }
+    }
+
+    .btn-eliminar-tarjeta {
+      padding: 8px 12px;
+      background: white;
+      color: #d32f2f;
+      border: 2px solid #d32f2f;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 44px;
+      transition: all 0.2s ease;
+
+      i {
+        font-size: 14px;
+      }
+
+      &:hover {
+        background: #d32f2f;
+        color: white;
+        box-shadow: 0 4px 12px rgba(211, 47, 47, 0.3);
+      }
+
+      &:active {
+        transform: scale(0.98);
+      }
+    }
+  }
+
+  /**
+   * Metadata
+   */
+  .tarjeta-meta {
+    font-size: 11px;
+    color: #999;
+    text-align: center;
+  }
+}

@@ -1,0 +1,22 @@
+<div class="chart-card">
+  <div class="chart-header">
+    <h3>
+      <i class="pi pi-filter"></i>
+      {{ 'embudoConversion' | translate }}
+    </h3>
+    <button class="btn-refresh" (click)="refreshChart()" [title]="'actualizar' | translate">
+      <i class="pi pi-refresh"></i>
+    </button>
+  </div>
+
+  <div class="chart-container">
+    <canvas #chartCanvas width="400" height="250"></canvas>
+  </div>
+
+  <div class="chart-legend">
+    <div class="legend-item" *ngFor="let data of funnelData">
+      <span class="legend-color" style="background-color: #2d7a7a;"></span>
+      <span class="legend-label">{{ data.label }}: {{ data.value | number }}</span>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,156 @@
+<div class="seguridad-section">
+  <!-- Change Password Section -->
+  <div class="change-password-section">
+    <div class="section-header">
+      <i class="pi pi-lock"></i>
+      <h3>{{ 'cambiarContrasena' | translate }}</h3>
+    </div>
+
+    <form class="password-form" (ngSubmit)="changePassword()">
+      <!-- Current Password -->
+      <div class="form-group">
+        <label for="currentPassword">{{ 'contrasenaActual' | translate }}</label>
+        <div class="password-input-wrapper">
+          <input
+            id="currentPassword"
+            [type]="showCurrentPassword ? 'text' : 'password'"
+            [(ngModel)]="passwordForm.currentPassword"
+            name="currentPassword"
+            placeholder="Ingresa tu contraseña actual"
+            class="form-input"
+          />
+          <button
+            type="button"
+            class="toggle-password"
+            (click)="togglePasswordVisibility('current')"
+          >
+            <i [ngClass]="showCurrentPassword ? 'pi pi-eye-slash' : 'pi pi-eye'"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- New Password -->
+      <div class="form-group">
+        <label for="newPassword">{{ 'contrasenaNueva' | translate }}</label>
+        <div class="password-input-wrapper">
+          <input
+            id="newPassword"
+            [type]="showNewPassword ? 'text' : 'password'"
+            [(ngModel)]="passwordForm.newPassword"
+            (input)="onNewPasswordChange()"
+            name="newPassword"
+            placeholder="Ingresa una nueva contraseña"
+            class="form-input"
+          />
+          <button
+            type="button"
+            class="toggle-password"
+            (click)="togglePasswordVisibility('new')"
+          >
+            <i [ngClass]="showNewPassword ? 'pi pi-eye-slash' : 'pi pi-eye'"></i>
+          </button>
+        </div>
+
+        <!-- Password Strength Indicator -->
+        <div *ngIf="passwordForm.newPassword" class="password-strength">
+          <div class="strength-bar">
+            <div
+              class="strength-fill"
+              [style.width.%]="passwordStrength * 20"
+              [style.background-color]="getPasswordStrengthColor()"
+            ></div>
+          </div>
+          <p class="strength-label" [style.color]="getPasswordStrengthColor()">
+            {{ 'fortalezaContrasena' | translate }}: {{ passwordStrengthLabel }}
+          </p>
+        </div>
+
+        <!-- Password Requirements -->
+        <div class="password-requirements">
+          <p class="requirements-title">{{ 'fortalezaContrasena' | translate }}:</p>
+          <ul>
+            <li [class.met]="passwordForm.newPassword.length >= 8">
+              <i class="pi" [ngClass]="passwordForm.newPassword.length >= 8 ? 'pi-check' : 'pi-times'"></i>
+              Mínimo 8 caracteres
+            </li>
+            <li [class.met]="/[a-z]/.test(passwordForm.newPassword) && /[A-Z]/.test(passwordForm.newPassword)">
+              <i class="pi" [ngClass]="/[a-z]/.test(passwordForm.newPassword) && /[A-Z]/.test(passwordForm.newPassword) ? 'pi-check' : 'pi-times'"></i>
+              Mayúsculas y minúsculas
+            </li>
+            <li [class.met]="/\d/.test(passwordForm.newPassword)">
+              <i class="pi" [ngClass]="/\d/.test(passwordForm.newPassword) ? 'pi-check' : 'pi-times'"></i>
+              Al menos un número
+            </li>
+            <li [class.met]="/[!@#$%^&*]/.test(passwordForm.newPassword)">
+              <i class="pi" [ngClass]="/[!@#$%^&*]/.test(passwordForm.newPassword) ? 'pi-check' : 'pi-times'"></i>
+              Carácter especial (!@#$%^&*)
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Confirm Password -->
+      <div class="form-group">
+        <label for="confirmPassword">{{ 'confirmarContrasena' | translate }}</label>
+        <div class="password-input-wrapper">
+          <input
+            id="confirmPassword"
+            [type]="showConfirmPassword ? 'text' : 'password'"
+            [(ngModel)]="passwordForm.confirmPassword"
+            name="confirmPassword"
+            placeholder="Confirma tu nueva contraseña"
+            class="form-input"
+            [class.mismatch]="passwordForm.confirmPassword && passwordForm.newPassword !== passwordForm.confirmPassword"
+          />
+          <button
+            type="button"
+            class="toggle-password"
+            (click)="togglePasswordVisibility('confirm')"
+          >
+            <i [ngClass]="showConfirmPassword ? 'pi pi-eye-slash' : 'pi pi-eye'"></i>
+          </button>
+        </div>
+        <p
+          *ngIf="passwordForm.confirmPassword && passwordForm.newPassword !== passwordForm.confirmPassword"
+          class="error-message"
+        >
+          <i class="pi pi-exclamation-circle"></i>
+          Las contraseñas no coinciden
+        </p>
+      </div>
+
+      <!-- Submit Button -->
+      <div class="form-actions">
+        <button
+          type="submit"
+          class="btn-change-password"
+          [disabled]="!passwordForm.currentPassword || !passwordForm.newPassword || !passwordForm.confirmPassword"
+        >
+          <i class="pi pi-lock"></i>
+          {{ 'cambiarContrasena' | translate }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Modal: Requiere re-inicio de sesión tras cambio de contraseña -->
+<div class="mini-modal-overlay" *ngIf="showReLoginModal" (click)="aceptarReLogin()">
+  <div class="mini-modal-content" (click)="$event.stopPropagation()">
+    <div class="mini-modal-header">
+      <h3>{{ 'seguridad' | translate }}</h3>
+      <button class="btn-close" type="button" (click)="aceptarReLogin()">
+        <i class="pi pi-times"></i>
+      </button>
+    </div>
+    <div class="mini-modal-body">
+      <p>Tu contraseña ha sido actualizada correctamente.</p>
+      <p>Para continuar navegando debes volver a iniciar sesión.</p>
+    </div>
+    <div class="mini-modal-footer">
+      <button type="button" class="btn btn-primary" (click)="aceptarReLogin()">
+        Aceptar
+      </button>
+    </div>
+  </div>
+  </div>

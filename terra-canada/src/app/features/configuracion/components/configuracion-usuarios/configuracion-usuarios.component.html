@@ -1,0 +1,361 @@
+<div class="usuarios-section">
+  <div class="section-header">
+    <div>
+      <h3>
+        <i class="pi pi-users"></i>
+        Gestión de Usuarios
+      </h3>
+      <p class="section-subtitle">
+        Administre los usuarios del sistema: creación, edición y activación/desactivación.
+      </p>
+    </div>
+    <button type="button" class="btn-primary" (click)="abrirModalCrear()">
+      <i class="pi pi-user-plus"></i>
+      <span>Nuevo usuario</span>
+    </button>
+  </div>
+
+  <div class="search-container">
+    <div class="search-input-wrapper">
+      <i class="pi pi-search"></i>
+      <input
+        type="text"
+        placeholder="Buscar por nombre, correo o rol..."
+        [(ngModel)]="searchTerm"
+        (input)="onSearch()"
+        class="search-input"
+      />
+      <button *ngIf="searchTerm" (click)="clearSearch()" class="btn-clear">
+        <i class="pi pi-times"></i>
+      </button>
+    </div>
+  </div>
+
+  <div class="table-container" *ngIf="!isLoading">
+    <div class="table-wrapper">
+      <table class="usuarios-table">
+        <thead>
+          <tr>
+            <th>Usuario</th>
+            <th>Nombre completo</th>
+            <th>Correo</th>
+            <th>Teléfono</th>
+            <th>Rol</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let u of filteredUsuarios" class="usuario-row">
+            <td>{{ u.nombre_usuario }}</td>
+            <td>{{ u.nombre_completo }}</td>
+            <td>{{ u.correo }}</td>
+            <td>{{ u.telefono || '-' }}</td>
+            <td>{{ u.rolNombre || '-' }}</td>
+            <td class="cell-actions">
+              <div class="action-buttons">
+                <button
+                  type="button"
+                  class="action-btn edit-btn"
+                  title="Editar usuario"
+                  (click)="abrirModalEditar(u)"
+                >
+                  <i class="pi pi-pencil"></i>
+                </button>
+                <button
+                  type="button"
+                  class="action-btn password-btn"
+                  title="Cambiar contraseña"
+                  (click)="onCambiarContrasena(u)"
+                >
+                  <i class="pi pi-key"></i>
+                </button>
+                <button
+                  type="button"
+                  class="action-btn deactivate-btn"
+                  title="Eliminar usuario"
+                  (click)="abrirModalEliminar(u)"
+                >
+                  <i class="pi pi-trash"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+          <tr *ngIf="filteredUsuarios.length === 0">
+            <td colspan="6" class="empty-message">No hay usuarios para mostrar.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="loading" *ngIf="isLoading">
+    <i class="pi pi-spin pi-spinner"></i>
+    <span>Cargando usuarios...</span>
+  </div>
+
+  <div class="error-message" *ngIf="errorMessage">
+    <i class="pi pi-exclamation-triangle"></i>
+    <span>{{ errorMessage }}</span>
+  </div>
+
+  <!-- Modal: Crear Usuario -->
+  <div class="modal-overlay" *ngIf="showCreateModal">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <button type="button" class="btn-close-modal" (click)="cerrarModalCrear()">
+        <i class="pi pi-times"></i>
+      </button>
+      <h2>Nuevo usuario</h2>
+
+      <div class="modal-body">
+        <div class="form-group">
+          <label>Nombre de usuario *</label>
+          <input type="text" [(ngModel)]="nuevoUsuario.nombre_usuario" class="form-input" />
+        </div>
+
+        <div class="form-group">
+          <label>Correo *</label>
+          <input type="email" [(ngModel)]="nuevoUsuario.correo" class="form-input" />
+        </div>
+
+        <div class="form-group">
+          <label>Nombre completo *</label>
+          <input type="text" [(ngModel)]="nuevoUsuario.nombre_completo" class="form-input" />
+        </div>
+
+        <div class="form-group">
+          <label>Teléfono</label>
+          <input
+            type="text"
+            [(ngModel)]="nuevoUsuario.telefono"
+            class="form-input"
+            inputmode="numeric"
+            (input)="onTelefonoInputNuevo($event)"
+          />
+        </div>
+
+        <div class="form-group">
+          <label>Rol *</label>
+          <select [(ngModel)]="nuevoUsuario.rol_id" class="form-input">
+            <option *ngFor="let rol of roles" [ngValue]="rol.id">{{ rol.nombre }}</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Contraseña *</label>
+          <div class="password-input-wrapper">
+            <input
+              [type]="showPassword ? 'text' : 'password'"
+              [(ngModel)]="nuevoUsuario.contrasena"
+              class="form-input"
+            />
+            <button
+              type="button"
+              class="btn-toggle-password"
+              (click)="togglePasswordVisibility()"
+            >
+              <i class="pi" [ngClass]="showPassword ? 'pi-eye-slash' : 'pi-eye'"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button type="button" class="btn-cancel" (click)="cerrarModalCrear()">
+          <i class="pi pi-times"></i>
+          Cancelar
+        </button>
+        <button type="button" class="btn-primary" (click)="onCrearUsuario()">
+          <i class="pi pi-check"></i>
+          Crear usuario
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Editar Usuario -->
+  <div class="modal-overlay" *ngIf="showEditModal">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <button type="button" class="btn-close-modal" (click)="cerrarModalEditar()">
+        <i class="pi pi-times"></i>
+      </button>
+      <h2>Editar usuario</h2>
+
+      <div class="modal-body">
+        <div class="form-group">
+          <label>Nombre de usuario</label>
+          <input type="text" [(ngModel)]="editarUsuarioForm.nombre_usuario" class="form-input" />
+        </div>
+
+        <div class="form-group">
+          <label>Correo</label>
+          <input type="email" [(ngModel)]="editarUsuarioForm.correo" class="form-input" />
+        </div>
+
+        <div class="form-group">
+          <label>Nombre completo</label>
+          <input type="text" [(ngModel)]="editarUsuarioForm.nombre_completo" class="form-input" />
+        </div>
+
+        <div class="form-group">
+          <label>Teléfono</label>
+          <input
+            type="text"
+            [(ngModel)]="editarUsuarioForm.telefono"
+            class="form-input"
+            inputmode="numeric"
+            (input)="onTelefonoInputEditar($event)"
+          />
+        </div>
+
+        <div class="form-group">
+          <label>Rol</label>
+          <select [(ngModel)]="editarUsuarioForm.rol_id" class="form-input">
+            <option *ngFor="let rol of roles" [ngValue]="rol.id">{{ rol.nombre }}</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Estado</label>
+          <select [(ngModel)]="editarUsuarioForm.esta_activo" class="form-input">
+            <option [ngValue]="true">Activo</option>
+            <option [ngValue]="false">Inactivo</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button type="button" class="btn-cancel" (click)="cerrarModalEditar()">
+          <i class="pi pi-times"></i>
+          Cancelar
+        </button>
+        <button type="button" class="btn-primary" (click)="onEditarUsuario()">
+          <i class="pi pi-check"></i>
+          Guardar cambios
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Confirmar eliminación (desactivación) -->
+  <div class="modal-overlay" *ngIf="showDeleteConfirm">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <button type="button" class="btn-close-modal" (click)="cerrarModalEliminar()">
+        <i class="pi pi-times"></i>
+      </button>
+      <h2>Confirmar eliminación</h2>
+      <div class="modal-body">
+        <p>
+          ¿Estás seguro de que deseas eliminar al usuario
+          <strong>{{ usuarioAEliminar?.nombre_usuario }}</strong>?
+        </p>
+        <p>
+          Esta acción desactivará al usuario en el sistema, pero no lo eliminará
+          físicamente de la base de datos.
+        </p>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn-cancel" (click)="cerrarModalEliminar()">
+          <i class="pi pi-times"></i>
+          Cancelar
+        </button>
+        <button type="button" class="btn-primary" (click)="confirmarEliminarUsuario()">
+          <i class="pi pi-trash"></i>
+          Eliminar usuario
+        </button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Modal: Cambiar contraseña de usuario (solo administradores) -->
+  <div class="modal-overlay" *ngIf="showChangePasswordModal">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <button type="button" class="btn-close-modal" (click)="cerrarModalCambioContrasena()">
+        <i class="pi pi-times"></i>
+      </button>
+
+      <h2>Cambiar contraseña</h2>
+
+      <div class="modal-body">
+        <p *ngIf="usuarioCambioContrasena">
+          Cambiar contraseña para el usuario
+          <strong>{{ usuarioCambioContrasena.nombre_usuario }}</strong>
+        </p>
+
+        <div class="form-group">
+          <label>Contraseña actual</label>
+          <div class="password-input-wrapper">
+            <input
+              [type]="showCurrentPasswordChange ? 'text' : 'password'"
+              [(ngModel)]="passwordChangeForm.currentPassword"
+              class="form-input"
+              placeholder="Ingresa la contraseña actual"
+            />
+            <button
+              type="button"
+              class="btn-toggle-password"
+              (click)="togglePasswordVisibilityCambio('current')"
+            >
+              <i class="pi" [ngClass]="showCurrentPasswordChange ? 'pi-eye-slash' : 'pi-eye'"></i>
+            </button>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Nueva contraseña</label>
+          <div class="password-input-wrapper">
+            <input
+              [type]="showNewPasswordChange ? 'text' : 'password'"
+              [(ngModel)]="passwordChangeForm.newPassword"
+              class="form-input"
+              placeholder="Ingresa una nueva contraseña"
+            />
+            <button
+              type="button"
+              class="btn-toggle-password"
+              (click)="togglePasswordVisibilityCambio('new')"
+            >
+              <i class="pi" [ngClass]="showNewPasswordChange ? 'pi-eye-slash' : 'pi-eye'"></i>
+            </button>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Confirmar contraseña</label>
+          <div class="password-input-wrapper">
+            <input
+              [type]="showConfirmPasswordChange ? 'text' : 'password'"
+              [(ngModel)]="passwordChangeForm.confirmPassword"
+              class="form-input"
+              placeholder="Confirma la nueva contraseña"
+            />
+            <button
+              type="button"
+              class="btn-toggle-password"
+              (click)="togglePasswordVisibilityCambio('confirm')"
+            >
+              <i class="pi" [ngClass]="showConfirmPasswordChange ? 'pi-eye-slash' : 'pi-eye'"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button type="button" class="btn-cancel" (click)="cerrarModalCambioContrasena()" [disabled]="isChangingPassword">
+          <i class="pi pi-times"></i>
+          Cancelar
+        </button>
+        <button
+          type="button"
+          class="btn-primary"
+          (click)="confirmarCambioContrasena()"
+          [disabled]="isChangingPassword"
+        >
+          <i class="pi" [ngClass]="isChangingPassword ? 'pi-spin pi-spinner' : 'pi-check'"></i>
+          <span>{{ isChangingPassword ? 'Guardando...' : 'Cambiar contraseña' }}</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de eliminación física removido: en Gestión de Usuarios solo se desactiva el usuario -->
+</div>

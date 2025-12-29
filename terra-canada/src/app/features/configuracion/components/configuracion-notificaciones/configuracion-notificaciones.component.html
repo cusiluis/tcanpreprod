@@ -1,0 +1,104 @@
+<div class="notificaciones-section">
+  <!-- Notification Categories -->
+  <div class="notification-categories">
+    <!-- Email Notifications -->
+    <div class="notification-category">
+      <div class="category-header">
+        <i class="pi pi-envelope"></i>
+        <h3>{{ 'notificacionesEmail' | translate }}</h3>
+      </div>
+      <div class="category-items">
+        <div
+          *ngFor="let pref of getNotificationsByCategory('email')"
+          class="notification-item"
+        >
+          <div class="item-content">
+            <div class="item-header">
+              <label class="checkbox-wrapper">
+                <input
+                  type="checkbox"
+                  [(ngModel)]="pref.enabled"
+                  (change)="toggleNotification(pref)"
+                />
+                <span class="checkbox-custom"></span>
+              </label>
+              <span class="item-label">{{ pref.label }}</span>
+            </div>
+            <p class="item-description">{{ pref.description }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Push Notifications -->
+    <div class="notification-category">
+      <div class="category-header">
+        <i class="pi pi-bell"></i>
+        <h3>{{ 'notificacionesPush' | translate }}</h3>
+      </div>
+      <div class="category-items">
+        <div
+          *ngFor="let pref of getNotificationsByCategory('push')"
+          class="notification-item"
+        >
+          <div class="item-content">
+            <div class="item-header">
+              <label class="checkbox-wrapper">
+                <input
+                  type="checkbox"
+                  [(ngModel)]="pref.enabled"
+                  (change)="toggleNotification(pref)"
+                />
+                <span class="checkbox-custom"></span>
+              </label>
+              <span class="item-label">{{ pref.label }}</span>
+            </div>
+            <p class="item-description">{{ pref.description }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SMS Notifications -->
+    <div class="notification-category">
+      <div class="category-header">
+        <i class="pi pi-mobile"></i>
+        <h3>{{ 'notificacionesSMS' | translate }}</h3>
+      </div>
+      <div class="category-items">
+        <div
+          *ngFor="let pref of getNotificationsByCategory('sms')"
+          class="notification-item"
+        >
+          <div class="item-content">
+            <div class="item-header">
+              <label class="checkbox-wrapper">
+                <input
+                  type="checkbox"
+                  [(ngModel)]="pref.enabled"
+                  (change)="toggleNotification(pref)"
+                />
+                <span class="checkbox-custom"></span>
+              </label>
+              <span class="item-label">{{ pref.label }}</span>
+            </div>
+            <p class="item-description">{{ pref.description }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Action Buttons -->
+  <div class="notification-actions">
+    <button
+      type="button"
+      class="btn-save"
+      (click)="savePreferences()"
+      [disabled]="isSaving"
+    >
+      <i [ngClass]="isSaving ? 'pi pi-spin pi-spinner' : 'pi pi-check'"></i>
+      {{ isSaving ? 'guardando' : 'guardarCambios' | translate }}
+    </button>
+  </div>
+</div>

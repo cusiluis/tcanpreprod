@@ -1,0 +1,411 @@
+<div class="payment-form-container" *ngIf="isVisible">
+  <form [formGroup]="form" class="payment-form">
+    <!-- SECCIÓN 1: PARTES INVOLUCRADAS -->
+    <div class="form-section">
+      <h4 class="section-title">Partes Involucradas</h4>
+      
+      <div class="form-row">
+        <!-- Cliente Field with Autocomplete Combobox -->
+        <div class="form-group">
+          <label>Cliente *</label>
+          <div class="combobox-wrapper">
+            <div class="combobox-input-container">
+              <input
+                type="text"
+                formControlName="clienteNombre"
+                class="form-control combobox-input"
+                placeholder="Escribe para buscar cliente..."
+                (focus)="onClienteFocus()"
+                (blur)="onClienteBlur()"
+                autocomplete="off"
+              />
+              <i class="pi pi-chevron-down combobox-icon" *ngIf="!mostrarClientesDropdown"></i>
+              <i class="pi pi-chevron-up combobox-icon" *ngIf="mostrarClientesDropdown"></i>
+            </div>
+            
+            <!-- Dropdown con opciones filtradas -->
+            <div class="combobox-dropdown" *ngIf="mostrarClientesDropdown && (clientesFiltrados.length > 0 || form.get('clienteNombre')?.value)">
+              <div class="combobox-list">
+                <!-- Opción para crear nuevo cliente (al inicio para mejor UX) -->
+                <div class="combobox-item combobox-item-add" (click)="abrirModalNuevoCliente()">
+                  <i class="pi pi-plus"></i>
+                  <span>Agregar nuevo cliente</span>
+                </div>
+                <div class="combobox-divider" *ngIf="clientesFiltrados.length > 0"></div>
+
+                <!-- Opciones filtradas -->
+                <div
+                  class="combobox-item"
+                  *ngFor="let cliente of clientesFiltrados"
+                  (click)="seleccionarCliente(cliente)"
+                >
+                  <span class="item-text">{{ cliente.nombre }}</span>
+                  <i class="pi pi-check item-check" *ngIf="form.get('cliente')?.value === cliente.id"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="form-error" *ngIf="form.get('cliente')?.invalid && form.get('cliente')?.touched">
+            Cliente es requerido
+          </div>
+        </div>
+
+        <!-- Proveedor Field with Autocomplete Combobox -->
+        <div class="form-group">
+          <label>Proveedor *</label>
+          <div class="combobox-wrapper">
+            <div class="combobox-input-container">
+              <input
+                type="text"
+                formControlName="proveedorNombre"
+                class="form-control combobox-input"
+                placeholder="Escribe para buscar proveedor..."
+                (focus)="onProveedorFocus()"
+                (blur)="onProveedorBlur()"
+                autocomplete="off"
+              />
+              <i class="pi pi-chevron-down combobox-icon" *ngIf="!mostrarProveedoresDropdown"></i>
+              <i class="pi pi-chevron-up combobox-icon" *ngIf="mostrarProveedoresDropdown"></i>
+            </div>
+            
+            <!-- Dropdown con opciones filtradas -->
+            <div class="combobox-dropdown" *ngIf="mostrarProveedoresDropdown && (proveedoresFiltrados.length > 0 || form.get('proveedorNombre')?.value)">
+              <div class="combobox-list">
+                <!-- Opción para crear nuevo proveedor (al inicio para mejor UX) -->
+                <div class="combobox-item combobox-item-add" (click)="abrirModalNuevoProveedor()">
+                  <i class="pi pi-plus"></i>
+                  <span>Agregar nuevo proveedor</span>
+                </div>
+                <div class="combobox-divider" *ngIf="proveedoresFiltrados.length > 0"></div>
+
+                <!-- Opciones filtradas -->
+                <div
+                  class="combobox-item"
+                  *ngFor="let proveedor of proveedoresFiltrados"
+                  (click)="seleccionarProveedor(proveedor)"
+                >
+                  <div class="item-content">
+                    <span class="item-text">{{ proveedor.nombre }}</span>
+                    <span class="item-service">{{ proveedor.servicio }}</span>
+                  </div>
+                  <i class="pi pi-check item-check" *ngIf="form.get('proveedor')?.value === proveedor.id"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="form-error" *ngIf="form.get('proveedor')?.invalid && form.get('proveedor')?.touched">
+            Proveedor es requerido
+          </div>
+        </div>
+      </div>
+
+      <!-- Correo Field (Auto-filled from Proveedor) -->
+      <div class="form-group form-group-full">
+        <label>Correo</label>
+        <div *ngIf="mostrarDropdownCorreos" class="correo-selector">
+          <div class="correo-dropdown-wrapper">
+            <button
+              type="button"
+              class="correo-dropdown-btn"
+              (click)="mostrarDropdownCorreos = !mostrarDropdownCorreos"
+            >
+              {{ form.get('correo')?.value || 'Seleccionar correo' }}
+              <i class="pi pi-chevron-down"></i>
+            </button>
+            <div class="correo-dropdown-list" *ngIf="mostrarDropdownCorreos">
+              <div
+                class="correo-item"
+                *ngFor="let correo of correosDisponibles"
+                (click)="seleccionarCorreo(correo)"
+              >
+                {{ correo }}
+              </div>
+            </div>
+          </div>
+        </div>
+        <input
+          *ngIf="!mostrarDropdownCorreos"
+          type="email"
+          formControlName="correo"
+          class="form-control"
+          placeholder="Correo del proveedor"
+          readonly
+        />
+      </div>
+    </div>
+
+    <!-- SECCIÓN 2: INFORMACIÓN DEL PAGO -->
+    <div class="form-section">
+      <h4 class="section-title">Información del Pago</h4>
+
+      <div class="form-row">
+        <!-- Moneda Selection Field -->
+        <div class="form-group">
+          <label>Moneda *</label>
+          <select formControlName="moneda" class="form-control">
+            <option value="">Seleccione moneda...</option>
+            <option *ngFor="let moneda of monedasDisponibles" [value]="moneda.id">
+              {{ moneda.nombre }}
+            </option>
+          </select>
+          <div class="form-error" *ngIf="form.get('moneda')?.invalid && form.get('moneda')?.touched">
+            Moneda es requerida
+          </div>
+        </div>
+
+        <!-- Tarjeta Field (Filtered by Currency) -->
+        <div class="form-group">
+          <label>Tarjeta *</label>
+          <select formControlName="tarjeta" class="form-control" [disabled]="!monedaSeleccionada">
+            <option value="">{{ monedaSeleccionada ? 'Seleccione tarjeta...' : 'Seleccione moneda primero' }}</option>
+            <option *ngFor="let tarjeta of tarjetasFiltradas" [value]="tarjeta.id">
+              {{ tarjeta.nombre_titular }} - ****{{ tarjeta.numero_tarjeta.slice(-4) }}
+            </option>
+          </select>
+          <div class="form-error" *ngIf="form.get('tarjeta')?.invalid && form.get('tarjeta')?.touched">
+            Tarjeta es requerida
+          </div>
+        </div>
+
+        <!-- Monto Field -->
+        <div class="form-group">
+          <label>Monto *</label>
+          <input
+            type="number"
+            formControlName="monto"
+            class="form-control"
+            placeholder="0.00"
+            step="0.01"
+            min="0"
+          />
+          <div class="form-error" *ngIf="form.get('monto')?.invalid && form.get('monto')?.touched">
+            Monto válido es requerido
+          </div>
+        </div>
+      </div>
+
+      <!-- N° Presta Field (Manual, Alfanumérico) -->
+      <div class="form-group form-group-full">
+        <div class="numero-presta-header" *ngIf="enableAutomaticNumeroPresta; else simpleNumeroPrestaLabel">
+          <label>N° Presta (Alfanumérico) *</label>
+          <div class="numero-presta-toggle">
+            <label class="toggle-option">
+              <input
+                type="radio"
+                name="numeroPrestaModo"
+                [checked]="!numeroPrestaAutomatico"
+                (change)="setNumeroPrestaModo(false)"
+              />
+              <span>Manual</span>
+            </label>
+            <label class="toggle-option">
+              <input
+                type="radio"
+                name="numeroPrestaModo"
+                [checked]="numeroPrestaAutomatico"
+                (change)="setNumeroPrestaModo(true)"
+              />
+              <span>Automático</span>
+            </label>
+          </div>
+        </div>
+        <ng-template #simpleNumeroPrestaLabel>
+          <label>N° Presta (Alfanumérico) *</label>
+        </ng-template>
+
+        <input
+          type="text"
+          formControlName="numeroPresta"
+          class="form-control"
+          placeholder="Ej: PREST-2024-001"
+          [readonly]="numeroPrestaAutomatico"
+        />
+        <small class="form-hint" *ngIf="!numeroPrestaAutomatico">
+          Número único proporcionado por el servicio
+        </small>
+        <small class="form-hint" *ngIf="numeroPrestaAutomatico">
+          Se generará automáticamente con el formato TARJE-{{ currentYear }}-ID
+        </small>
+        <div class="form-error" *ngIf="form.get('numeroPresta')?.invalid && form.get('numeroPresta')?.touched && !numeroPrestaAutomatico">
+          N° Presta es requerido
+        </div>
+        <div class="form-error" *ngIf="numeroPrestaError">
+          {{ numeroPrestaError }}
+        </div>
+      </div>
+    </div>
+
+    <!-- SECCIÓN 3: NOTAS -->
+    <div class="form-section">
+      <h4 class="section-title">Notas Adicionales</h4>
+
+      <!-- Comentarios Field -->
+      <div class="form-group form-group-full">
+        <label>Comentarios</label>
+        <textarea
+          formControlName="comentarios"
+          class="form-control notes-textarea"
+          placeholder="Comentarios adicionales del pago..."
+          rows="3"
+        ></textarea>
+      </div>
+    </div>
+
+    <!-- Submit Button -->
+    <div class="form-actions">
+      <button type="button" class="btn btn-secondary" (click)="onCancel()">
+        <i class="pi pi-times"></i>
+        Cancelar
+      </button>
+      <button type="submit" class="btn btn-primary" [disabled]="form.invalid">
+        <i class="pi pi-check"></i>
+        Registrar Pago
+      </button>
+    </div>
+  </form>
+
+  <!-- Modal Nuevo Cliente -->
+  <div class="mini-modal-overlay" *ngIf="mostrarModalNuevoCliente">
+    <div class="mini-modal-content" (click)="$event.stopPropagation()">
+      <div class="mini-modal-header">
+        <h3>Agregar Nuevo Cliente</h3>
+        <button class="btn-close" (click)="cerrarModalNuevoCliente()">
+          <i class="pi pi-times"></i>
+        </button>
+      </div>
+      <div class="mini-modal-body">
+        <div class="form-group">
+          <label>Nombre *</label>
+          <input
+            type="text"
+            [(ngModel)]="nuevoClienteNombre"
+            class="form-control"
+            placeholder="Nombre del cliente"
+          />
+        </div>
+        <div class="form-group">
+          <label>Ubicación</label>
+          <input
+            type="text"
+            [(ngModel)]="nuevoClienteUbicacion"
+            class="form-control"
+            placeholder="Ciudad, país"
+          />
+        </div>
+        <div class="form-group">
+          <label>Teléfono</label>
+          <input
+            type="tel"
+            [(ngModel)]="nuevoClienteTelefono"
+            class="form-control"
+            placeholder="+1 (555) 123-4567"
+          />
+        </div>
+        <div class="form-group">
+          <label>Correo</label>
+          <input
+            type="email"
+            [(ngModel)]="nuevoClienteCorreo"
+            class="form-control"
+            placeholder="cliente@email.com"
+          />
+        </div>
+      </div>
+      <div class="mini-modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="cerrarModalNuevoCliente()">
+          Cancelar
+        </button>
+        <button type="button" class="btn btn-primary" (click)="guardarNuevoCliente()">
+          <i class="pi pi-check"></i>
+          Guardar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Nuevo Proveedor -->
+  <div class="mini-modal-overlay" *ngIf="mostrarModalNuevoProveedor">
+    <div class="mini-modal-content" (click)="$event.stopPropagation()">
+      <div class="mini-modal-header">
+        <h3>Agregar Nuevo Proveedor</h3>
+        <button class="btn-close" (click)="cerrarModalNuevoProveedor()">
+          <i class="pi pi-times"></i>
+        </button>
+      </div>
+      <div class="mini-modal-body">
+        <div class="form-group">
+          <label>Nombre *</label>
+          <input
+            type="text"
+            [(ngModel)]="nuevoProveedorNombre"
+            class="form-control"
+            placeholder="Nombre del proveedor"
+          />
+        </div>
+        <div class="form-group">
+          <label>Servicio *</label>
+          <input
+            type="text"
+            [(ngModel)]="nuevoProveedorServicio"
+            class="form-control"
+            placeholder="Tipo de servicio"
+          />
+        </div>
+        <div class="form-group">
+          <label>Teléfono</label>
+          <input
+            type="tel"
+            [(ngModel)]="nuevoProveedorTelefono"
+            class="form-control"
+            placeholder="+57 300 123 4567"
+          />
+        </div>
+        <div class="form-group">
+          <label>Teléfono 2</label>
+          <input
+            type="tel"
+            [(ngModel)]="nuevoProveedorTelefono2"
+            class="form-control"
+            placeholder="+57 300 987 6543"
+          />
+        </div>
+        <div class="form-group">
+          <label>Correo</label>
+          <input
+            type="email"
+            [(ngModel)]="nuevoProveedorCorreo"
+            class="form-control"
+            placeholder="proveedor@email.com"
+          />
+        </div>
+        <div class="form-group">
+          <label>Correo 2</label>
+          <input
+            type="email"
+            [(ngModel)]="nuevoProveedorCorreo2"
+            class="form-control"
+            placeholder="contacto@email.com"
+          />
+        </div>
+        <div class="form-group">
+          <label>Descripción</label>
+          <textarea
+            [(ngModel)]="nuevoProveedorDescripcion"
+            class="form-control"
+            placeholder="Descripción del proveedor..."
+            rows="3"
+          ></textarea>
+        </div>
+      </div>
+      <div class="mini-modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="cerrarModalNuevoProveedor()">
+          Cancelar
+        </button>
+        <button type="button" class="btn btn-primary" (click)="guardarNuevoProveedor()">
+          <i class="pi pi-check"></i>
+          Guardar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

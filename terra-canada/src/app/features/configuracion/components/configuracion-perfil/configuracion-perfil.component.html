@@ -1,0 +1,148 @@
+﻿<section class="perfil-section" *ngIf="currentUser">
+  <div class="perfil-header">
+    <div class="perfil-avatar">
+      <img
+        *ngIf="avatarDataUrl; else defaultAvatar"
+        [src]="avatarDataUrl"
+        alt="Avatar"
+        class="avatar-image"
+      />
+      <ng-template #defaultAvatar>
+        <i class="pi pi-user"></i>
+      </ng-template>
+
+      <label class="avatar-upload">
+        <i class="pi pi-camera"></i>
+        <input type="file" accept="image/*" (change)="onAvatarSelected($event)" />
+      </label>
+    </div>
+
+    <div class="perfil-info">
+      <h2>{{ profileForm.nombre }} {{ profileForm.apellido }}</h2>
+      <p>@{{ profileForm.username }} · {{ profileForm.rol }}</p>
+    </div>
+
+    <button
+      type="button"
+      class="btn-edit"
+      (click)="toggleEdit()"
+      [disabled]="!isAdminUser"
+    >
+      <i class="pi" [ngClass]="isEditing ? 'pi-times' : 'pi-pencil'"></i>
+      <span *ngIf="!isEditing">Editar perfil</span>
+      <span *ngIf="isEditing">Cancelar edición</span>
+    </button>
+  </div>
+
+  <div class="perfil-form">
+    <form (ngSubmit)="saveChanges()">
+      <div class="form-section">
+        <h3>Datos personales</h3>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Nombre</label>
+            <input
+              class="form-input"
+              type="text"
+              name="nombre"
+              [(ngModel)]="profileForm.nombre"
+              [readOnly]="!isEditing"
+            />
+          </div>
+
+          <div class="form-group">
+            <label>Apellido</label>
+            <input
+              class="form-input"
+              type="text"
+              name="apellido"
+              [(ngModel)]="profileForm.apellido"
+              [readOnly]="!isEditing"
+            />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Email</label>
+            <input
+              class="form-input"
+              type="email"
+              name="email"
+              [(ngModel)]="profileForm.email"
+              [readOnly]="true"
+            />
+          </div>
+
+          <div class="form-group">
+            <label>Teléfono</label>
+            <input
+              class="form-input"
+              type="text"
+              name="telefono"
+              [(ngModel)]="profileForm.telefono"
+              [readOnly]="!isEditing"
+            />
+          </div>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <h3>Información de la cuenta</h3>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Usuario</label>
+            <input
+              class="form-input"
+              type="text"
+              [value]="profileForm.username"
+              readOnly
+            />
+          </div>
+
+          <div class="form-group">
+            <label>Rol</label>
+            <input
+              class="form-input"
+              type="text"
+              [value]="profileForm.rol"
+              readOnly
+            />
+          </div>
+        </div>
+      </div>
+
+      <div class="form-actions" *ngIf="isAdminUser && isEditing">
+        <button
+          type="button"
+          class="btn-cancel"
+          (click)="cancelEdit()"
+          [disabled]="!isEditing || isSaving"
+        >
+          <i class="pi pi-times"></i>
+          <span>Cancelar</span>
+        </button>
+
+        <button
+          type="submit"
+          class="btn-save"
+          [disabled]="!isEditing || isSaving"
+        >
+          <i class="pi pi-save"></i>
+          <span>Guardar cambios</span>
+        </button>
+      </div>
+    </form>
+  </div>
+</section>
+
+<section class="perfil-section" *ngIf="!currentUser">
+  <div class="perfil-header">
+    <div class="perfil-info">
+      <h2>Perfil de usuario</h2>
+      <p>No se encontró información de usuario.</p>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,227 @@
+<div class="analisis-layout">
+  <!-- Sidebar -->
+  <app-sidebar></app-sidebar>
+
+  <!-- Main Content -->
+  <main class="analisis-content">
+    <!-- Top Header -->
+    <app-top-header></app-top-header>
+
+    <!-- Page Header -->
+    <div class="page-header">
+      <div class="header-left">
+        <h1>{{ 'analisisReportes' | translate }}</h1>
+        <p class="header-subtitle">{{ 'inteligenciaNegocio' | translate }}</p>
+      </div>
+      <div class="header-right">
+        <div class="filter-bar">
+          <div class="filter-field">
+            <label for="fecha-desde">{{ 'filtrarPorFecha' | translate }}</label>
+            <div class="date-inputs">
+              <div class="date-input">
+                <div class="input-row" [ngClass]="{ 'is-focused': isDesdeFocused }">
+                  <span class="icon-chip">
+                    <i class="pi pi-calendar"></i>
+                  </span>
+                  <div class="input-wrapper">
+                    <p-datepicker
+                      id="fecha-desde"
+                      [(ngModel)]="fechaDesdeDate"
+                      [showIcon]="false"
+                      [showButtonBar]="true"
+                      dateFormat="yy-mm-dd"
+                      inputId="analisis-date-from"
+                      inputStyleClass="tc-date-input"
+                      [touchUI]="false"
+                      appendTo="body"
+                      [maxDate]="today"
+                      panelStyleClass="tc-calendar-panel"
+                      [placeholder]="'yyyy-mm-dd'"
+                      (onFocus)="setFocusedInput('desde', true)"
+                      (onBlur)="setFocusedInput('desde', false)"
+                      (onHide)="setFocusedInput('desde', false)"
+                    ></p-datepicker>
+                  </div>
+                </div>
+              </div>
+              <span class="range-divider">—</span>
+              <div class="date-input">
+                <div class="input-row" [ngClass]="{ 'is-focused': isHastaFocused }">
+                  <span class="icon-chip">
+                    <i class="pi pi-calendar"></i>
+                  </span>
+                  <div class="input-wrapper">
+                    <p-datepicker
+                      id="fecha-hasta"
+                      [(ngModel)]="fechaHastaDate"
+                      [showIcon]="false"
+                      [showButtonBar]="true"
+                      dateFormat="yy-mm-dd"
+                      inputId="analisis-date-to"
+                      inputStyleClass="tc-date-input"
+                      [touchUI]="false"
+                      appendTo="body"
+                      [maxDate]="today"
+                      panelStyleClass="tc-calendar-panel"
+                      [placeholder]="'yyyy-mm-dd'"
+                      (onFocus)="setFocusedInput('hasta', true)"
+                      (onBlur)="setFocusedInput('hasta', false)"
+                      (onHide)="setFocusedInput('hasta', false)"
+                    ></p-datepicker>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="filter-actions">
+            <div class="period-chips">
+              <button
+                pButton
+                type="button"
+                class="p-button-sm period-btn"
+                [ngClass]="{ 'is-active': periodoSeleccionado === 'dia' }"
+                (click)="setPeriodo('dia')"
+              >
+                Día
+              </button>
+              <button
+                pButton
+                type="button"
+                class="p-button-sm period-btn"
+                [ngClass]="{ 'is-active': periodoSeleccionado === 'semana' }"
+                (click)="setPeriodo('semana')"
+              >
+                Semana
+              </button>
+              <button
+                pButton
+                type="button"
+                class="p-button-sm period-btn"
+                [ngClass]="{ 'is-active': periodoSeleccionado === 'mes' }"
+                (click)="setPeriodo('mes')"
+              >
+                Mes
+              </button>
+            </div>
+            <button
+              pButton
+              type="button"
+              class="p-button-sm p-button-outlined"
+              icon="pi pi-trash"
+              [disabled]="!filtroActivo"
+              (click)="limpiarFiltros()"
+            >
+              {{ 'limpiar' | translate }}
+            </button>
+
+            <button
+              pButton
+              type="button"
+              class="p-button-sm"
+              icon="pi pi-filter"
+              [disabled]="!puedeAplicarFiltro"
+              (click)="aplicarFiltro()"
+            >
+              {{ 'filtrar' | translate }}
+            </button>
+          </div>
+        </div>
+
+        <div class="active-filter" *ngIf="filtroActivo">
+          <p-chip
+            [label]="(fechaDesde ? (fechaDesde | date:'yyyy-MM-dd') : '∞') + ' → ' + (fechaHasta ? (fechaHasta | date:'yyyy-MM-dd') : '∞')"
+            icon="pi pi-calendar"
+            removable="true"
+            (onRemove)="limpiarFiltros()"
+          ></p-chip>
+        </div>
+      </div>
+    </div>
+
+    <!-- Content Container -->
+    <div class="content-container">
+      <!-- Stats Grid -->
+      <div class="stats-grid">
+        <app-stat-card *ngFor="let stat of stats" [stat]="stat"></app-stat-card>
+      </div>
+
+      <!-- Charts Grid -->
+      <div class="charts-grid">
+        <!-- Distribución emails, Comparativo medios, Línea temporal pagos -->
+        <app-pie-chart [distribucion]="analisis?.distribucion_emails || null"></app-pie-chart>
+        <app-bar-chart [comparativo]="analisis?.comparativo_medios || null"></app-bar-chart>
+        <app-line-chart [temporal]="analisis?.temporal_pagos || null"></app-line-chart>
+      </div>
+
+      <!-- Top Proveedores -->
+      <div class="top-proveedores" *ngIf="analisis?.top_proveedores?.length">
+        <div class="top-proveedores-header">
+          <h3>Top proveedores con más movimientos</h3>
+          <p class="top-proveedores-subtitle">Proveedores ordenados por monto total acumulado en el rango seleccionado.</p>
+        </div>
+        <div class="top-proveedores-table-wrapper">
+          <table class="top-proveedores-table">
+            <thead>
+              <tr>
+                <th>{{ 'proveedor' | translate }}</th>
+                <th>N° pagos</th>
+                <th>Total acumulado</th>
+                <th>Último pago</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let prov of analisis?.top_proveedores">
+                <td class="prov-nombre">{{ prov.proveedor }}</td>
+                <td class="prov-pagos">{{ prov.numero_pagos }}</td>
+                <td class="prov-monto">
+                  <div class="monto-valor">{{ prov.total_acumulado | number:'1.2-2' }}</div>
+                  <div class="monto-bar-wrapper">
+                    <div
+                      class="monto-bar"
+                      [style.width.%]="
+                        maxTotalProveedoresMonto
+                          ? (prov.total_acumulado / maxTotalProveedoresMonto) * 100
+                          : 0
+                      "
+                    ></div>
+                  </div>
+                </td>
+                <td class="prov-ultimo-pago">{{ prov.ultimo_pago | date:'yyyy-MM-dd HH:mm' }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Export and Reports Section -->
+      <div class="export-section">
+        <div class="export-header">
+          <h3>
+            <i class="pi pi-download"></i>
+            {{ 'exportarDatos' | translate }}
+          </h3>
+        </div>
+
+        <div class="export-buttons-grid">
+          <button class="export-btn excel-btn" (click)="exportExcel()">
+            <i class="pi pi-file-excel"></i>
+            <span>{{ 'exportarExcel' | translate }}</span>
+          </button>
+          <button class="export-btn csv-btn" (click)="exportCSV()">
+            <i class="pi pi-file"></i>
+            <span>{{ 'exportarCSV' | translate }}</span>
+          </button>
+          <button class="export-btn pdf-btn" (click)="exportPDF()">
+            <i class="pi pi-file-pdf"></i>
+            <span>{{ 'generarPDF' | translate }}</span>
+          </button>
+          <button class="export-btn json-btn" (click)="exportJSON()">
+            <i class="pi pi-code"></i>
+            <span>{{ 'exportarJSON' | translate }}</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>

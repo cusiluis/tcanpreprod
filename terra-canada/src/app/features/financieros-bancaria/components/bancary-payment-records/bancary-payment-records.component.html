@@ -1,0 +1,88 @@
+<div class="payment-records-section">
+  <div class="section-header">
+    <h3>
+      <i class="pi pi-list"></i>
+      {{ 'registrosPagos' | translate }}
+    </h3>
+  </div>
+
+  <div class="search-filter-container">
+    <div class="search-form">
+      <div class="search-input-group">
+        <i class="pi pi-search"></i>
+        <input
+          type="text"
+          class="search-input"
+          [placeholder]="'buscarRegistros' | translate"
+          (input)="onSearchChange($any($event.target).value)"
+        />
+      </div>
+    </div>
+
+    <div class="filter-tabs">
+      <button class="tab-btn" [class.active]="filterTab === 'todos'" (click)="setFilterTab('todos')">
+        {{ 'todos' | translate }}
+      </button>
+      <button class="tab-btn" [class.active]="filterTab === 'pendientes'" (click)="setFilterTab('pendientes')">
+        {{ 'pendientes' | translate }}
+      </button>
+      <button class="tab-btn" [class.active]="filterTab === 'pagados'" (click)="setFilterTab('pagados')">
+        {{ 'pagados' | translate }}
+      </button>
+      
+    </div>
+  </div>
+
+  <!-- Tabla Genérica Paginada -->
+  <app-paginated-table
+    [data]="filteredRegistros"
+    [columns]="columns"
+    [actions]="actions"
+    [itemsPerPage]="10"
+    [maxHeight]="'600px'"
+    [showPaginationInfo]="true"
+    (onAction)="onTableAction($event)"
+  ></app-paginated-table>
+
+  <div class="mini-modal-overlay" *ngIf="showConfirmDelete" (click)="cancelDelete()">
+    <div class="mini-modal-content" (click)="$event.stopPropagation()">
+      <div class="mini-modal-header">
+        <h3>{{ 'eliminar' | translate }}</h3>
+        <button class="btn-close" type="button" (click)="cancelDelete()">
+          <i class="pi pi-times"></i>
+        </button>
+      </div>
+      <div class="mini-modal-body">
+        <p>¿Seguro que deseas eliminar este registro?</p>
+        <p class="mini-modal-warning">Esta acción no se puede deshacer.</p>
+      </div>
+      <div class="mini-modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="cancelDelete()">
+          {{ 'cancelar' | translate }}
+        </button>
+        <button type="button" class="btn btn-primary" (click)="confirmDelete()">
+          <i class="pi pi-trash"></i>
+          {{ 'eliminar' | translate }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal para Nuevo Pago -->
+<div *ngIf="showPaymentModal" class="modal-overlay" (click)="closePaymentModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>{{ 'nuevoRegistroPago' | translate }}</h2>
+      <button class="btn-close" (click)="closePaymentModal()">
+        <i class="pi pi-times"></i>
+      </button>
+    </div>
+    <div class="modal-body">
+      <app-payment-form
+        (onSubmit)="onPaymentFormSubmit($event)"
+        (onCancel)="closePaymentModal()"
+      ></app-payment-form>
+    </div>
+  </div>
+</div>

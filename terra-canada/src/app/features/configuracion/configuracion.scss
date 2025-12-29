@@ -1,0 +1,237 @@
+.configuracion-layout {
+  display: flex;
+  height: 100vh;
+  background: #f5f5f5;
+
+  .configuracion-content {
+    flex: 1;
+    margin-left: 220px;
+    overflow-y: hidden;
+    display: flex;
+    flex-direction: column;
+
+    .page-header {
+      padding: 24px;
+      background: white;
+      border-bottom: 1px solid #e0e0e0;
+      flex-shrink: 0;
+
+      .header-content {
+        h1 {
+          margin: 0 0 8px 0;
+          font-size: 28px;
+          font-weight: 700;
+          color: #333333;
+          display: flex;
+          align-items: center;
+          gap: 12px;
+
+          i {
+            color: #2d7a7a;
+            font-size: 32px;
+          }
+        }
+
+        .header-subtitle {
+          margin: 0;
+          font-size: 13px;
+          color: #888888;
+        }
+      }
+    }
+
+    .content-container {
+      flex: 1;
+      padding: 24px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+
+      .tabs-section {
+        margin-top: 12px;
+        background: white;
+        border-radius: 8px;
+        border: 1px solid #e0e0e0;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        overflow: hidden;
+        position: sticky;
+        top: 12px;
+        z-index: 10;
+
+        .tabs-container {
+          display: flex;
+          border-bottom: 2px solid #e0e0e0;
+
+          .tab-button {
+            flex: 1;
+            padding: 16px 20px;
+            background: white;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            color: #666666;
+            position: relative;
+
+            i {
+              font-size: 16px;
+            }
+
+            .tab-label {
+              display: none;
+
+              @media (min-width: 768px) {
+                display: inline;
+              }
+            }
+
+            &:hover {
+              background: #f9f9f9;
+              color: #2d7a7a;
+            }
+
+            &.active {
+              color: #2d7a7a;
+              background: white;
+
+              &::after {
+                content: '';
+                position: absolute;
+                bottom: -2px;
+                left: 0;
+                right: 0;
+                height: 2px;
+                background: #2d7a7a;
+              }
+            }
+          }
+        }
+      }
+
+      .tab-content {
+        .tab-pane {
+          opacity: 0;
+          transform: translateY(10px);
+          transition: all 0.3s ease;
+          pointer-events: none;
+
+          &.active {
+            opacity: 1;
+            transform: translateY(0);
+            pointer-events: auto;
+          }
+        }
+      }
+    }
+  }
+}
+
+/* Dark Theme */
+html.dark-theme {
+  .configuracion-layout {
+    background: #1a1a1a;
+
+    .configuracion-content {
+      .page-header {
+        background: #2d2d2d;
+        border-bottom-color: #444444;
+
+        .header-content {
+          h1 {
+            color: #e0e0e0;
+          }
+
+          .header-subtitle {
+            color: #888888;
+          }
+        }
+      }
+
+      .content-container {
+        .tabs-section {
+          background: #2d2d2d;
+          border-color: #444444;
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+
+          .tabs-container {
+            border-bottom-color: #444444;
+
+            .tab-button {
+              background: #2d2d2d;
+              color: #b0b0b0;
+
+              &:hover {
+                background: #3a3a3a;
+                color: #4a9b9b;
+              }
+
+              &.active {
+                color: #4a9b9b;
+                background: #2d2d2d;
+
+                &::after {
+                  background: #4a9b9b;
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .configuracion-layout {
+    .configuracion-content {
+      margin-left: 220px;
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .configuracion-layout {
+    .configuracion-content {
+      margin-left: 0;
+
+      .page-header {
+        padding: 16px;
+
+        .header-content {
+          h1 {
+            font-size: 22px;
+          }
+        }
+      }
+
+      .content-container {
+        padding: 16px;
+        gap: 16px;
+
+        .tabs-section {
+          .tabs-container {
+            .tab-button {
+              padding: 12px 8px;
+              font-size: 11px;
+
+              i {
+                font-size: 14px;
+              }
+
+              .tab-label {
+                display: none;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

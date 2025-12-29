@@ -1,0 +1,151 @@
+<div class="tarjetas-layout">
+  <!-- Notificaciones -->
+  <app-notification
+    [notifications]="notifications"
+    (notificationDismissed)="onNotificationDismissed($event)"
+  ></app-notification>
+
+  <!-- Sidebar -->
+  <app-sidebar></app-sidebar>
+
+  <!-- Main Content -->
+  <main class="tarjetas-content">
+    <!-- Top Header -->
+    <app-top-header></app-top-header>
+
+    <!-- Page Header -->
+    <div class="page-header">
+      <div class="header-left">
+        <h1>{{ 'tarjetas' | translate }}</h1>
+        <p class="header-subtitle">{{ 'gestionTarjetas' | translate }}</p>
+        <div class="reset-info" *ngIf="mensajeResetTarjetas">
+          <small>{{ mensajeResetTarjetas }}</small>
+        </div>
+      </div>
+    </div>
+
+    <!-- Content Container -->
+    <div class="content-container">
+      <!-- Tarjetas Grid Container -->
+      <div class="tarjetas-grid-section">
+        <!-- Tarjetas List with Add Button -->
+        <app-tarjetas-list
+          (anadirSaldo)="abrirModalAnadirSaldo($event)"
+          (anadirTarjeta)="abrirModalNuevaTarjeta()"
+          (cambiarEstado)="abrirModalCambiarEstado($event)"
+          (eliminarTarjeta)="onEliminarTarjeta($event)"
+        ></app-tarjetas-list>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- Modal: Añadir Nueva Tarjeta -->
+<div class="modal-overlay" *ngIf="mostrarModalNuevaTarjeta">
+  <div class="modal-content modal-nueva-tarjeta" (click)="$event.stopPropagation()">
+    <button class="btn-close-modal" (click)="cerrarModalNuevaTarjeta()">
+      <i class="pi pi-times"></i>
+    </button>
+    <app-tarjetas-form
+      [actionType]="'nueva-tarjeta'"
+      (onSubmit)="onNuevaTarjetaSubmit()"
+      (onCancel)="cerrarModalNuevaTarjeta()"
+    ></app-tarjetas-form>
+  </div>
+</div>
+
+<!-- Modal: Añadir Saldo -->
+<div class="modal-overlay" *ngIf="mostrarModalAnadirSaldo">
+  <div class="modal-content modal-anadir-saldo" (click)="$event.stopPropagation()">
+    <button type="button" class="btn-close-modal" (click)="cerrarModalAnadirSaldo()">
+      <i class="pi pi-times"></i>
+    </button>
+    <app-tarjetas-form
+      [actionType]="'recargar-saldo'"
+      [tarjetaSeleccionada]="tarjetaSeleccionada"
+      (onSubmit)="onAnadirSaldoSubmit()"
+      (onCancel)="cerrarModalAnadirSaldo()"
+    ></app-tarjetas-form>
+  </div>
+</div>
+
+<!-- Modal: Cambiar Estado -->
+<div class="modal-overlay" *ngIf="mostrarModalCambiarEstado">
+  <div class="modal-content modal-cambiar-estado" (click)="$event.stopPropagation()">
+    <button type="button" class="btn-close-modal" (click)="cerrarModalCambiarEstado()">
+      <i class="pi pi-times"></i>
+    </button>
+    <div class="modal-cambiar-estado-content">
+      <h2 class="modal-title">
+        <i class="pi pi-pencil"></i>
+        {{ 'cambiarEstado' | translate }}
+      </h2>
+      
+      <div *ngIf="tarjetaSeleccionada" class="estado-info">
+        <p class="tarjeta-nombre">{{ tarjetaSeleccionada.nombre_titular }}</p>
+        <p class="estado-actual">{{ 'estadoActual' | translate }}: <strong>{{ tarjetaSeleccionada.estado.nombre }}</strong></p>
+      </div>
+
+      <div class="estados-list">
+        <div class="estado-option" 
+          *ngFor="let estado of estadosDisponibles"
+          [ngClass]="'estado-' + estado.nombre.toLowerCase()"
+          (click)="onSeleccionarEstado(estado)"
+        >
+          <div class="estado-header">
+            <span class="estado-nombre">{{ estado.nombre }}</span>
+            <i class="pi" [ngClass]="getIconoEstado(estado.nombre)"></i>
+          </div>
+          <p class="estado-descripcion">{{ getDescripcionEstado(estado.nombre) }}</p>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button type="button" class="btn-cancel" (click)="cerrarModalCambiarEstado()">
+          <i class="pi pi-times"></i>
+          {{ 'cancelar' | translate }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Confirmación de Eliminación Permanente -->
+<div class="modal-overlay" *ngIf="mostrarModalConfirmacionEliminar">
+  <div class="modal-content modal-confirmacion-eliminar" (click)="$event.stopPropagation()">
+    <button type="button" class="btn-close-modal" (click)="cerrarModalConfirmacionEliminar()">
+      <i class="pi pi-times"></i>
+    </button>
+    <div class="modal-confirmacion-content">
+      <div class="confirmacion-header">
+        <i class="pi pi-exclamation-triangle"></i>
+        <h2>{{ 'confirmarEliminacion' | translate }}</h2>
+      </div>
+      
+      <div *ngIf="tarjetaSeleccionada" class="confirmacion-info">
+        <p class="info-text">
+          ¿Está seguro de que desea eliminar permanentemente la tarjeta <strong>{{ tarjetaSeleccionada.nombre_titular }}</strong>?
+        </p>
+        <p class="warning-text">
+          <i class="pi pi-info-circle"></i>
+          Esta acción no se puede deshacer. La tarjeta será eliminada de la base de datos permanentemente.
+        </p>
+        <p class="card-details">
+          <span>Número: ****-{{ tarjetaSeleccionada.numero_tarjeta.slice(-4) }}</span>
+          <span>Estado: {{ tarjetaSeleccionada.estado.nombre }}</span>
+        </p>
+      </div>
+
+      <div class="modal-actions">
+        <button type="button" class="btn-cancel" (click)="cerrarModalConfirmacionEliminar()">
+          <i class="pi pi-times"></i>
+          {{ 'cancelar' | translate }}
+        </button>
+        <button type="button" class="btn-eliminar-permanente" (click)="confirmarEliminarTarjeta()">
+          <i class="pi pi-trash"></i>
+          {{ 'eliminarPermanentemente' | translate }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

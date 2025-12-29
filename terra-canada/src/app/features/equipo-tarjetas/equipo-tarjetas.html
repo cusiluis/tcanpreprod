@@ -1,0 +1,293 @@
+<div class="equipo-tarjetas-layout">
+  <!-- Notifications -->
+  <app-notification 
+    [notifications]="notifications"
+    (notificationDismissed)="notificationService.dismiss($event)">
+  </app-notification>
+
+  <!-- Sidebar -->
+  <app-sidebar></app-sidebar>
+
+  <!-- Main Content -->
+  <main class="equipo-tarjetas-content">
+    <!-- Top Header -->
+    <app-top-header></app-top-header>
+
+    <!-- Page Header -->
+    <div class="page-header">
+      <div class="header-left">
+        <h1>{{ 'equipoTarjetas' | translate }}</h1>
+        <p class="header-subtitle">{{ 'gestionPagosEquipo' | translate }}</p>
+        <div class="reset-info" *ngIf="mensajeResetTarjetas">
+          <small>{{ mensajeResetTarjetas }}</small>
+        </div>
+      </div>
+    </div>
+
+    <!-- Content Container -->
+    <div class="content-container">
+      <!-- Action Buttons Row -->
+      <div class="action-buttons-row">
+        <!-- New Payment Button -->
+        <button
+          class="btn-action btn-new-payment"
+          (click)="openPaymentModal()"
+        >
+          <i class="pi pi-plus"></i>
+          <span>{{ 'nuevoRegistroPago' | translate }}</span>
+        </button>
+
+        <!-- Upload Document Button -->
+        <button
+          class="btn-action btn-upload-document"
+          (click)="openDocumentModal()"
+        >
+          <i class="pi pi-cloud-upload"></i>
+          <span>{{ 'subidaDocumentos' | translate }}</span>
+        </button>
+      </div>
+
+      <!-- Payment Modal -->
+      <div class="modal-overlay" *ngIf="showPaymentModal">
+        <div class="modal-content" (click)="$event.stopPropagation()">
+          <div class="modal-header">
+            <h2>{{ 'nuevoRegistroPago' | translate }}</h2>
+            <button class="btn-close" (click)="closePaymentModal()">
+              <i class="pi pi-times"></i>
+            </button>
+          </div>
+          <div class="modal-body">
+            <app-payment-form
+              [form]="paymentForm"
+              [isVisible]="true"
+              [enableAutomaticNumeroPresta]="true"
+              (submit)="onSubmitPayment()"
+              (cancel)="closePaymentModal()"
+            ></app-payment-form>
+          </div>
+        </div>
+      </div>
+
+      <!-- Document Upload Modal -->
+      <div class="modal-overlay" *ngIf="showDocumentModal">
+        <div class="modal-content modal-large" (click)="$event.stopPropagation()">
+          <div class="modal-header">
+            <h2>{{ 'subidaDocumentos' | translate }}</h2>
+            <button class="btn-close" (click)="closeDocumentModal()">
+              <i class="pi pi-times"></i>
+            </button>
+          </div>
+          <div class="modal-body">
+            <app-document-upload [pago]="pagoSeleccionado"></app-document-upload>
+          </div>
+        </div>
+      </div>
+
+      <!-- Webhook Result Modal -->
+      <div class="modal-overlay" *ngIf="webhookModalVisible">
+        <div class="modal-content" (click)="$event.stopPropagation()">
+          <div class="modal-header">
+            <h2>Resultado de la validación</h2>
+            <button class="btn-close" (click)="closeWebhookModal()">
+              <i class="pi pi-times"></i>
+            </button>
+          </div>
+          <div class="modal-body webhook-result-modal">
+            <p class="webhook-message">
+              {{ webhookModalMessage }}
+            </p>
+            <div *ngIf="webhookModalCodes?.length" class="webhook-codes">
+              <h4>Codigos:</h4>
+              <ul>
+                <li *ngFor="let code of webhookModalCodes">
+                  {{ code }}
+                </li>
+              </ul>
+            </div>
+            <div class="form-actions">
+              <button
+                type="button"
+                class="btn btn-primary"
+                (click)="closeWebhookModal()"
+              >
+                Aceptar
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Edit Payment Modal -->
+      <div class="modal-overlay" *ngIf="showEditModal">
+        <div class="modal-content" (click)="$event.stopPropagation()">
+          <div class="modal-header">
+            <h2>Editar Pago</h2>
+            <button class="btn-close" (click)="closeEditModal()">
+              <i class="pi pi-times"></i>
+            </button>
+          </div>
+          <div class="modal-body">
+            <form 
+              [formGroup]="editForm" 
+              class="edit-payment-form"
+              [class.blurred]="showEditRestriction"
+            >
+              <!-- Estado Field -->
+              <div class="form-section">
+                <h4 class="section-title">Información del Pago</h4>
+                
+                <div class="form-group">
+                  <label for="estado">Estado *</label>
+                  <select 
+                    id="estado"
+                    formControlName="estado" 
+                    class="form-control"
+                    [class.is-invalid]="editForm.get('estado')?.invalid && editForm.get('estado')?.touched"
+                  >
+                    <option value="">Seleccionar estado</option>
+                    <option value="A PAGAR">A PAGAR</option>
+                    <option value="PAGADO">PAGADO</option>
+                  </select>
+                  <div class="form-error" *ngIf="editForm.get('estado')?.invalid && editForm.get('estado')?.touched">
+                    Estado es requerido
+                  </div>
+                </div>
+
+                <!-- Verificado Checkbox -->
+                <div class="form-group checkbox-group">
+                  <label class="checkbox-label">
+                    <input 
+                      type="checkbox" 
+                      formControlName="esta_verificado"
+                      class="checkbox-input"
+                    />
+                    <span class="checkbox-text">Verificado</span>
+                  </label>
+                </div>
+              </div>
+
+              <!-- Comentarios Section -->
+              <div class="form-section">
+                <h4 class="section-title">Detalles Adicionales</h4>
+                
+                <div class="form-group">
+                  <label for="comentarios">Comentarios</label>
+                  <textarea 
+                    id="comentarios"
+                    formControlName="comentarios" 
+                    class="form-control textarea-control"
+                    rows="4"
+                    placeholder="Agregar comentarios..."
+                  ></textarea>
+                </div>
+              </div>
+
+              <!-- Form Actions -->
+              <div class="form-actions">
+                <button 
+                  type="button" 
+                  class="btn btn-secondary"
+                  (click)="closeEditModal()"
+                >
+                  <i class="pi pi-times"></i>
+                  {{ 'cancelar' | translate }}
+                </button>
+                <button 
+                  type="button" 
+                  class="btn btn-primary"
+                  (click)="onSubmitEdit()" 
+                  [disabled]="!editForm.valid"
+                >
+                  <i class="pi pi-check"></i>
+                  Guardar Cambios
+                </button>
+              </div>
+            </form>
+            <div class="edit-restriction-overlay" *ngIf="showEditRestriction">
+              <div class="edit-restriction-message">
+                <i class="pi pi-lock"></i>
+                <p>COMUNIQUESE CON LOS ADMINISTRADORES</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- View Payment Modal -->
+      <div class="modal-overlay" *ngIf="showViewModal">
+        <div class="modal-content" (click)="$event.stopPropagation()">
+          <div class="modal-header">
+            <h2>Detalles del Pago</h2>
+            <button class="btn-close" (click)="closeViewModal()">
+              <i class="pi pi-times"></i>
+            </button>
+          </div>
+          <div class="modal-body" *ngIf="pagoSeleccionado">
+            <div class="view-details">
+              <div class="detail-row">
+                <span class="detail-label">ID:</span>
+                <span class="detail-value">{{ pagoSeleccionado.id }}</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">Cliente:</span>
+                <span class="detail-value">{{ pagoSeleccionado.cliente?.nombre || 'N/A' }}</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">Proveedor:</span>
+                <span class="detail-value">{{ pagoSeleccionado.proveedor?.nombre || 'N/A' }}</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">Monto:</span>
+                <span class="detail-value">${{ pagoSeleccionado.monto }}</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">Número de Presta:</span>
+                <span class="detail-value">{{ pagoSeleccionado.numero_presta }}</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">Tarjeta:</span>
+                <span class="detail-value">{{ pagoSeleccionado.tarjeta?.numero_enmascarado || 'N/A' }}</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">Estado:</span>
+                <span class="detail-value">{{ pagoSeleccionado.estado }}</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">Verificado:</span>
+                <span class="detail-value">{{ pagoSeleccionado.esta_verificado ? 'Sí' : 'No' }}</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">Registrado por:</span>
+                <span class="detail-value">{{ pagoSeleccionado.registrado_por?.nombre_completo || 'N/A' }}</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">Fecha de Creación:</span>
+                <span class="detail-value">{{ pagoSeleccionado.fecha_creacion }}</span>
+              </div>
+              <div class="detail-row" *ngIf="pagoSeleccionado.comentarios">
+                <span class="detail-label">Comentarios:</span>
+                <span class="detail-value">{{ pagoSeleccionado.comentarios }}</span>
+              </div>
+            </div>
+
+            <div class="form-actions">
+              <button type="button" class="btn btn-secondary" (click)="closeViewModal()">
+                Cerrar
+              </button>
+              <button type="button" class="btn btn-primary" (click)="openEditModal(pagoSeleccionado)">
+                Editar
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Payment Records Table -->
+      <app-payment-records 
+        (onEdit)="openEditModal($event)"
+        (onView)="openViewModal($event)"
+        (onScan)="openDocumentModal($event)">
+      </app-payment-records>
+    </div>
+  </main>
+</div>

@@ -1,0 +1,122 @@
+<!-- Tarjetas Grid Container -->
+<div class="tarjetas-grid-wrapper">
+  <!-- Grid de Tarjetas -->
+  <div class="tarjetas-grid">
+    <!-- Botón para Añadir Nueva Tarjeta (Solo Admin) -->
+    <div *ngIf="isAdmin" class="tarjeta-add-button" (click)="onAnadirTarjeta()">
+      <div class="add-button-content">
+        <i class="pi pi-plus"></i>
+        <p>{{ 'anadirNuevaTarjeta' | translate }}</p>
+      </div>
+    </div>
+
+    <!-- Tarjetas Existentes -->
+    <div *ngFor="let tarjeta of tarjetas" class="tarjeta-container">
+      <!-- Tarjeta Visual (Estilo Débito Real) -->
+      <div class="tarjeta-visual" [ngClass]="getStatusClass(tarjeta.estado.nombre)">
+        <!-- Estado Badge -->
+        <div class="tarjeta-status-badge" [ngClass]="getStatusClass(tarjeta.estado.nombre)">
+          {{ tarjeta.estado.nombre | uppercase }}
+        </div>
+
+        <!-- Tipo de Tarjeta -->
+        <div class="tarjeta-type">
+          {{ tarjeta.tipo.nombre }}
+        </div>
+
+        <!-- Chip -->
+        <div class="tarjeta-chip"></div>
+
+        <!-- Número de Tarjeta -->
+        <div class="tarjeta-number">
+          {{ tarjeta.numero_tarjeta }}
+        </div>
+
+        <!-- Nombre del Titular y Fecha -->
+        <div class="tarjeta-footer-info">
+          <div class="tarjeta-holder-name">
+            <span class="label">{{ 'nombreTitular' | translate }}</span>
+            <span class="value">{{ tarjeta.nombre_titular | uppercase }}</span>
+          </div>
+          <div class="tarjeta-expiry">
+            <span class="label">VÁLIDA HASTA</span>
+            <span class="value">12/28</span>
+          </div>
+        </div>
+
+        <!-- Brand -->
+        <div class="tarjeta-brand">
+          TERRA
+        </div>
+      </div>
+
+      <!-- Información y Controles -->
+      <div class="tarjeta-info-section">
+        <!-- Saldo y Límite -->
+        <div class="balance-section">
+          <div class="balance-item">
+            <span class="balance-label">{{ 'saldo' | translate }}</span>
+            <span class="balance-amount">{{ tarjeta.saldo | currency }}</span>
+          </div>
+          <div class="balance-item">
+            <span class="balance-label">{{ 'limite' | translate }}</span>
+            <span class="limit-amount">{{ tarjeta.limite | currency }}</span>
+          </div>
+        </div>
+
+        <!-- Progress Bar -->
+        <div class="tarjeta-progress">
+          <div class="progress-bar">
+            <div
+              class="progress-fill"
+              [style.width.%]="calculateUsagePercentage(tarjeta.saldo, tarjeta.limite)"
+              [style.backgroundColor]="getProgressColor(calculateUsagePercentage(tarjeta.saldo, tarjeta.limite))"
+            ></div>
+          </div>
+        </div>
+
+        <!-- Controles -->
+        <div class="tarjeta-controls">
+          <!-- Botón Cambiar Estado (Solo Admin) -->
+          <button 
+            *ngIf="isAdmin"
+            class="btn-cambiar-estado"
+            [ngClass]="'estado-' + tarjeta.estado.nombre.toLowerCase()"
+            (click)="onAbrirModalCambiarEstado(tarjeta)"
+            title="Cambiar estado de la tarjeta"
+          >
+            <i class="pi pi-pencil"></i>
+            <span class="btn-text">{{ 'cambiarEstado' | translate }}</span>
+          </button>
+
+          <!-- Botón Realizar Cargo (Solo Admin) -->
+          <button 
+            *ngIf="isAdmin"
+            class="btn-realizar-cargo"
+            (click)="onAnadirSaldo(tarjeta)"
+            [disabled]="tarjeta.estado.nombre.toLowerCase() !== 'activo'"
+            title="Realizar cargo a la tarjeta"
+          >
+            <i class="pi pi-plus"></i>
+            <span class="btn-text">{{ 'realizarCargo' | translate }}</span>
+          </button>
+
+          <!-- Botón Eliminar Tarjeta (Solo Admin) -->
+          <button 
+            *ngIf="isAdmin"
+            class="btn-eliminar-tarjeta"
+            (click)="onEliminarTarjeta(tarjeta)"
+            title="Eliminar tarjeta"
+          >
+            <i class="pi pi-trash"></i>
+          </button>
+        </div>
+
+        <!-- Fecha de Creación -->
+        <div class="tarjeta-meta">
+          <small>{{ 'fecha_creacion' | translate }}: {{ tarjeta.fecha_creacion | date: 'dd/MM/yyyy' }}</small>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
