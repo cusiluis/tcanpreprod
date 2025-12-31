@@ -117,6 +117,24 @@
                 background: #fef9e7;
                 color: #af8015;
               }
+
+              &.status-desconocido {
+                background: #f0f0f0;
+                color: #666666;
+              }
+
+              &.status-icon {
+                padding: 4px;
+                width: 24px;
+                height: 24px;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+
+                i {
+                  font-size: 14px;
+                }
+              }
             }
           }
         }
