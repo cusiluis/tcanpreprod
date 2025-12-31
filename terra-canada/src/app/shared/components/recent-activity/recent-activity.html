@@ -12,10 +12,12 @@
       <thead>
         <tr>
           <th>{{ 'fecha' | translate }}</th>
-          <th>{{ 'usuario' | translate }}</th>
+          <th>{{ 'proveedor' | translate }}</th>
+          <th>{{ 'cliente' | translate }}</th>
           <th>{{ 'accion' | translate }}</th>
           <th>{{ 'monto' | translate }}</th>
           <th>{{ 'estado' | translate }}</th>
+          <th>{{ 'verificacion' | translate }}</th>
         </tr>
       </thead>
       <tbody>
@@ -25,6 +27,7 @@
             <span class="time">{{ activity.time }}</span>
           </td>
           <td>{{ activity.user }}</td>
+          <td>{{ activity.client || '-' }}</td>
           <td>{{ activity.action }}</td>
           <td>
             <span *ngIf="activity.amount">
@@ -33,8 +36,21 @@
             <span *ngIf="!activity.amount">-</span>
           </td>
           <td>
-            <span class="status-badge" [ngClass]="getStatusClass(activity.status)">
-              {{ getStatusLabel(activity.status) }}
+            <span class="status-badge" [ngClass]="getPaymentStatusClass(activity.paymentStatus)">
+              {{ getPaymentStatusLabel(activity.paymentStatus) }}
+            </span>
+          </td>
+          <td>
+            <span
+              class="status-badge status-icon"
+              [ngClass]="activity.verified ? 'status-completado' : 'status-sin-verificacion'"
+              [attr.aria-label]="activity.verified ? 'Verificado' : 'No verificado'"
+              [attr.title]="activity.verified ? 'Verificado' : 'No verificado'"
+            >
+              <i
+                class="pi"
+                [ngClass]="activity.verified ? 'pi-check-circle' : 'pi-times-circle'"
+              ></i>
             </span>
           </td>
         </tr>
