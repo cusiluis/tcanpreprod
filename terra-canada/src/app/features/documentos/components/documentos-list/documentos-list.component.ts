@@ -51,6 +51,7 @@ export class DocumentosListComponent implements OnInit, OnChanges {
   isAdmin: boolean;
   private isEquipo: boolean;
   canDelete: boolean;
+  private currentUserNombre: string | null;
 
   // Estado para visor de documentos (modal)
   documentModalVisible = false;
@@ -81,6 +82,10 @@ export class DocumentosListComponent implements OnInit, OnChanges {
     this.isAdmin = this.authService.isAdmin();
     this.isEquipo = this.authService.isEquipo();
     this.canDelete = this.authService.hasPermission('eliminar_documento_usuario');
+    const currentUser = this.authService.getCurrentUser();
+    const nombre =
+      (currentUser?.nombre_completo || currentUser?.username || '').toLowerCase();
+    this.currentUserNombre = nombre || null;
   }
 
   ngOnInit(): void {
@@ -140,7 +145,7 @@ export class DocumentosListComponent implements OnInit, OnChanges {
     console.log('DocumentosListComponent.mapDocumentos() - data cruda', data);
     const baseModulos: ModuloDocumentos[] = [
       {
-        nombre: 'Equipo - Tarjetas',
+        nombre: 'Tarjetas',
         modulo: 'equipo-tarjetas',
         documentos: []
       },
@@ -170,21 +175,48 @@ export class DocumentosListComponent implements OnInit, OnChanges {
       };
 
       const origen = (doc.origen_pago || '').toUpperCase();
+      const prominencia = (doc.prominencia || '').toLowerCase();
+      const usuarioCargo = (doc.usuario_cargo || '').toLowerCase();
+      const subidoPorUsuarioActual =
+        !!this.currentUserNombre && usuarioCargo === this.currentUserNombre;
 
-      if (origen === 'BANCARIO') {
+      if (prominencia === 'c_bancarias') {
         const moduloBancario = baseModulos.find(
           (m) => m.modulo === 'financieros-bancaria'
         );
         moduloBancario?.documentos.push(documentoVista);
+      } else if (prominencia === 'tarjetas') {
+        if (this.isAdmin && subidoPorUsuarioActual) {
+          const moduloTarjetas = baseModulos.find(
+            (m) => m.modulo === 'financieros-tarjetas'
+          );
+          moduloTarjetas?.documentos.push(documentoVista);
+        } else {
+          const moduloEquipo = baseModulos.find(
+            (m) => m.modulo === 'equipo-tarjetas'
+          );
+          moduloEquipo?.documentos.push(documentoVista);
+        }
       } else {
-        const moduloEquipo = baseModulos.find(
-          (m) => m.modulo === 'equipo-tarjetas'
-        );
-        const moduloTarjetas = baseModulos.find(
-          (m) => m.modulo === 'financieros-tarjetas'
-        );
-        moduloEquipo?.documentos.push(documentoVista);
-        moduloTarjetas?.documentos.push(documentoVista);
+        // Fallback para documentos antiguos sin prominencia: usar origen_pago
+        if (origen === 'BANCARIO') {
+          const moduloBancario = baseModulos.find(
+            (m) => m.modulo === 'financieros-bancaria'
+          );
+          moduloBancario?.documentos.push(documentoVista);
+        } else {
+          if (this.isAdmin && subidoPorUsuarioActual) {
+            const moduloTarjetas = baseModulos.find(
+              (m) => m.modulo === 'financieros-tarjetas'
+            );
+            moduloTarjetas?.documentos.push(documentoVista);
+          } else {
+            const moduloEquipo = baseModulos.find(
+              (m) => m.modulo === 'equipo-tarjetas'
+            );
+            moduloEquipo?.documentos.push(documentoVista);
+          }
+        }
       }
     });
 
@@ -198,14 +230,16 @@ export class DocumentosListComponent implements OnInit, OnChanges {
 
   private applyRoleFilter(): void {
     if (this.isAdmin) {
-      this.filteredModulosDocumentos = [...this.modulosDocumentos];
+      this.filteredModulosDocumentos = this.modulosDocumentos.filter(
+        (m) => m.modulo !== 'financieros-tarjetas'
+      );
     } else if (this.isEquipo) {
       this.filteredModulosDocumentos = this.modulosDocumentos.filter(
         (m) => m.modulo === 'equipo-tarjetas'
       );
     } else {
       this.filteredModulosDocumentos = this.modulosDocumentos.filter(
-        (m) => m.modulo === 'financieros-tarjetas'
+        (m) => m.modulo !== 'financieros-tarjetas'
       );
     }
     this.cdr.markForCheck();

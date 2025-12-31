@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, OnDestroy, Output, EventEmitter, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup } from '@angular/forms';
 import { TranslatePipe } from '../../../../shared/pipes/translate.pipe';
@@ -12,7 +12,8 @@ import { takeUntil } from 'rxjs/operators';
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, TranslatePipe],
   templateUrl: './payment-records.component.html',
-  styleUrl: './payment-records.component.scss'
+  styleUrl: './payment-records.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class PaymentRecordsComponent implements OnInit, OnDestroy {
   @Output() onEdit = new EventEmitter<PagoDisplay>();
@@ -33,7 +34,8 @@ export class PaymentRecordsComponent implements OnInit, OnDestroy {
   constructor(
     private formBuilder: FormBuilder,
     private pagoService: PagoService,
-    private authService: AuthService
+    private authService: AuthService,
+    private cdr: ChangeDetectorRef
   ) {}
   
   // Observable para usar con async pipe
@@ -85,8 +87,10 @@ export class PaymentRecordsComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe((pagos: PagoDisplay[]) => {
         console.log('PaymentRecordsComponent - Pagos recibidos:', pagos);
-        this.allRecords = pagos;
+        // Clonar arreglo para asegurar detección de cambios con OnPush
+        this.allRecords = [...pagos];
         this.filterRecords();
+        this.cdr.markForCheck();
       });
   }
 
@@ -127,7 +131,8 @@ export class PaymentRecordsComponent implements OnInit, OnDestroy {
       );
     }
 
-    this.displayedRecords = filtered;
+    // Asignar una nueva referencia para que OnPush detecte el cambio
+    this.displayedRecords = [...filtered];
   }
 
   getStatusClass(status: string | undefined): string {

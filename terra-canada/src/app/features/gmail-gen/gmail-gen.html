@@ -53,6 +53,15 @@
           <button
             type="button"
             class="toggle-btn"
+            [class.active]="filter === 'todos'"
+            (click)="setFilter('todos')"
+          >
+            <i class="pi pi-inbox"></i>
+            <span>Todos</span>
+          </button>
+          <button
+            type="button"
+            class="toggle-btn"
             [class.active]="filter === 'pasados'"
             (click)="setFilter('pasados')"
           >
@@ -177,6 +186,73 @@
               </div>
             </div>
           </div>
+        </div>
+      </ng-container>
+
+      <!-- Sección TODOS: todos los correos pendientes sin filtrar por fecha -->
+      <ng-container *ngIf="filter === 'todos'">
+        <div class="section-title">
+          <h2>Todos los correos pendientes de envío</h2>
+        </div>
+
+        <div class="cards-grid" *ngIf="filteredGroups.length > 0">
+          <div
+            class="provider-card provider-card--teal"
+            *ngFor="let group of filteredGroups"
+          >
+            <div class="card-header">
+              <h3>{{ group.proveedorNombre }}</h3>
+              <button type="button" class="card-menu-btn">
+                <i class="pi pi-ellipsis-v"></i>
+              </button>
+            </div>
+
+            <div class="payments-list">
+              <div class="payment-item" *ngFor="let pago of group.pagos">
+                <div class="payment-labels">
+                  <div class="label-row">
+                    <span class="label">Cliente</span>
+                    <span class="value strong">{{ pago.cliente }}</span>
+                  </div>
+                  <div class="label-row">
+                    <span class="label">Monto Pagado</span>
+                    <span class="value amount">
+                      {{ pago.monto | currency:'USD':'symbol':'1.2-2' }}
+                    </span>
+                  </div>
+                  <div class="label-row">
+                    <span class="label">Código Referencia</span>
+                    <span class="value code">{{ pago.codigo }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="card-footer">
+              <div class="footer-left">
+                <span class="footer-count">{{ group.totalPagos }} pagos</span>
+                <span class="footer-total">
+                  $ {{ group.totalMonto | number:'1.2-2' }}
+                </span>
+              </div>
+
+              <div class="footer-right">
+                <button
+                  type="button"
+                  class="btn-send-email"
+                  (click)="openComposeModal(group)"
+                >
+                  <i class="pi pi-send"></i>
+                  <span>Enviar Gmail</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="history-empty" *ngIf="filteredGroups.length === 0">
+          <i class="pi pi-inbox"></i>
+          <span>No hay correos pendientes de envío.</span>
         </div>
       </ng-container>
 

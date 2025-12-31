@@ -177,6 +177,114 @@ export class GmailGenService {
     }
   }
 
+  /**
+   * Obtiene TODOS los pagos pendientes de envío para Gmail-GEN,
+   * sin filtrar por fecha de creación.
+   *
+   * Usa la función SQL public.correos_pendientes_general_get(p_usuario_id).
+   */
+  async getCorreosPendientesGeneral(
+    usuarioId: number
+  ): Promise<ServiceResponse<GmailEmailGroup[]>> {
+    try {
+      const resumenResult = await db.query(
+        'SELECT public.correos_pendientes_general_get(:usuario_id) as result',
+        {
+          replacements: {
+            usuario_id: usuarioId
+          },
+          type: QueryTypes.SELECT
+        }
+      );
+
+      const rawResumen = (resumenResult[0] as any).result as any;
+      const parsedResumen: any =
+        typeof rawResumen === 'string' ? JSON.parse(rawResumen) : rawResumen;
+
+      const resumenJson: ResumenFuncionResponse = {
+        status: parsedResumen?.status ?? parsedResumen?.estado ?? 500,
+        message: parsedResumen?.message ?? parsedResumen?.mensaje ?? '',
+        data: parsedResumen?.data ?? parsedResumen?.datos ?? {}
+      };
+
+      if (
+        !parsedResumen ||
+        (typeof resumenJson.status === 'number' && resumenJson.status >= 400)
+      ) {
+        return {
+          success: false,
+          error:
+            resumenJson.message ||
+            'Error obteniendo correos pendientes generales para Gmail-GEN',
+          statusCode:
+            typeof resumenJson.status === 'number' ? resumenJson.status : 500
+        };
+      }
+
+      const data = resumenJson.data || {};
+
+      const groups: GmailEmailGroup[] = [];
+      const proveedores = Object.entries(data) as [string, any][];
+
+      proveedores.forEach(([nombreProveedor, detalles], index) => {
+        if (!detalles) {
+          return;
+        }
+
+        const proveedorId = detalles.id_proveedor as number;
+        const correoProveedor = detalles.correo as string;
+        const pagosOrigen = (detalles.pagos || []) as any[];
+        const resumen = detalles.resumen || {};
+
+        const pagos: GmailPaymentRecord[] = pagosOrigen.map((pago: any) => ({
+          id: pago.id_pago,
+          cliente: pago.cliente,
+          monto: Number(pago.monto),
+          codigo: pago.codigo
+        }));
+
+        const totalPagos =
+          typeof resumen.cantidad_pagos === 'number'
+            ? resumen.cantidad_pagos
+            : pagos.length;
+        const totalMonto =
+          typeof resumen.monto_total === 'number'
+            ? Number(resumen.monto_total)
+            : pagos.reduce((acc, p) => acc + (p.monto || 0), 0);
+
+        groups.push({
+          id: proveedorId,
+          proveedorNombre: nombreProveedor,
+          correoContacto: correoProveedor,
+          color: index % 2 === 0 ? 'teal' : 'brown',
+          estado: 'pendiente',
+          pagos,
+          totalPagos,
+          totalMonto
+        } as GmailEmailGroup);
+      });
+
+      return {
+        success: true,
+        data: groups,
+        statusCode: 200
+      };
+    } catch (error) {
+      console.error(
+        'GmailGenService.getCorreosPendientesGeneral - Error:',
+        error
+      );
+      return {
+        success: false,
+        error:
+          error instanceof Error
+            ? error.message
+            : 'Error obteniendo correos pendientes generales para Gmail-GEN',
+        statusCode: 500
+      };
+    }
+  }
+
   async getResumenEnviosFecha(
     usuarioId: number,
     fecha?: string

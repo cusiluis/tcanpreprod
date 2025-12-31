@@ -308,7 +308,9 @@ export class AuthService {
     }
 
     if (user.rol_nombre?.toLowerCase() === 'equipo') {
-      return ['dashboard', 'equipo-tarjetas', 'tarjetas', 'documentos', 'eventos', 'configuracion', 'gmail-gen'];
+      // Para rol Equipo, el módulo inicial y principal es "equipo-tarjetas";
+      // no se expone "dashboard" como módulo accesible.
+      return ['equipo-tarjetas', 'tarjetas', 'documentos', 'eventos', 'configuracion', 'gmail-gen'];
     }
 
     return [];

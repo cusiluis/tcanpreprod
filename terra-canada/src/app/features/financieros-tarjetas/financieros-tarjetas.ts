@@ -126,6 +126,12 @@ export class FinancierosTarjetasComponent implements OnInit {
 
   closeWebhookModal(): void {
     this.webhookModalVisible = false;
+    // Cerrar también el modal de subida de documentos si está abierto
+    if (this.showDocumentModal) {
+      this.closeDocumentModal();
+    }
+    // Refrescar la tabla de pagos financieros (tarjetas)
+    this.pagoService.recargarPagos();
   }
 
   openEditModal(pago: any): void {

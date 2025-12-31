@@ -152,6 +152,12 @@ export class EquipoTarjetasComponent implements OnInit {
 
   closeWebhookModal(): void {
     this.webhookModalVisible = false;
+    // Cerrar también el modal de subida de documentos si está abierto
+    if (this.showDocumentModal) {
+      this.closeDocumentModal();
+    }
+    // Refrescar tabla de pagos para reflejar cambios realizados por el webhook
+    this.pagoService.recargarPagos();
   }
 
   openEditModal(pago: any): void {

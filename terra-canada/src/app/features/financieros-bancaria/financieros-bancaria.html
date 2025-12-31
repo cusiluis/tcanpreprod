@@ -70,7 +70,7 @@
             </button>
           </div>
           <div class="modal-body">
-            <app-document-upload></app-document-upload>
+            <app-document-upload [modulo]="'c_bancarias'"></app-document-upload>
           </div>
         </div>
       </div>
@@ -277,10 +277,6 @@
                 <span class="detail-value">{{ registroSeleccionado.accountType }}</span>
               </div>
               <div class="detail-row">
-                <span class="detail-label">Referencia:</span>
-                <span class="detail-value">{{ registroSeleccionado.reference }}</span>
-              </div>
-              <div class="detail-row">
                 <span class="detail-label">Monto:</span>
                 <span class="detail-value">${{ registroSeleccionado.amount | number: '1.2-2' }}</span>
               </div>
@@ -301,7 +297,7 @@
                 <span class="detail-value">{{ registroSeleccionado.user }}</span>
               </div>
               <div class="detail-row">
-                <span class="detail-label">Código:</span>
+                <span class="detail-label">NºPresta:</span>
                 <span class="detail-value">{{ registroSeleccionado.code }}</span>
               </div>
             </div>

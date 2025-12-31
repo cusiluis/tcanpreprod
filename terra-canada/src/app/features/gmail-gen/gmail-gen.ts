@@ -40,9 +40,12 @@ interface EmailInfoViewModel {
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class GmailGenComponent implements OnInit {
-  filter: 'hoy' | 'pasados' = 'hoy';
+  filter: 'hoy' | 'todos' | 'pasados' = 'hoy';
 
+  /** Pagos pendientes SOLO del día (vista "Hoy"). */
   pendingGroups: GmailEmailGroup[] = [];
+  /** Pagos pendientes generales (sin filtro por fecha) para la vista "Todos". */
+  generalPendingGroups: GmailEmailGroup[] = [];
   sentGroupsToday: GmailEmailGroup[] = [];
   historialEnvios: GmailEnvioHistorial[] = [];
 
@@ -120,16 +123,21 @@ export class GmailGenComponent implements OnInit {
 
   ngOnInit(): void {
     this.cargarResumen();
+    this.cargarPendientesGenerales();
     this.cargarEnviadosHoy();
     this.cargarHistorial();
   }
 
   get filteredGroups(): GmailEmailGroup[] {
-    if (this.filter !== 'hoy') {
-      return [];
+    if (this.filter === 'hoy') {
+      return this.pendingGroups;
     }
 
-    return this.pendingGroups;
+    if (this.filter === 'todos') {
+      return this.generalPendingGroups;
+    }
+
+    return [];
   }
 
   cargarResumen(fecha?: string): void {
@@ -161,6 +169,30 @@ export class GmailGenComponent implements OnInit {
           error
         );
         this.pendingGroups = [];
+        this.cdr.markForCheck();
+      }
+    });
+  }
+
+  cargarPendientesGenerales(): void {
+    this.gmailGenService.getCorreosPendientesGeneral().subscribe({
+      next: (response) => {
+        console.log('[Gmail-GEN] Pendientes GENERALES API response:', response);
+
+        if (response.success && response.data) {
+          this.generalPendingGroups = [...response.data];
+        } else {
+          this.generalPendingGroups = [];
+        }
+
+        this.cdr.markForCheck();
+      },
+      error: (error) => {
+        console.error(
+          '[Gmail-GEN] Error HTTP obteniendo pendientes GENERALES para Gmail-GEN',
+          error
+        );
+        this.generalPendingGroups = [];
         this.cdr.markForCheck();
       }
     });
@@ -211,7 +243,7 @@ export class GmailGenComponent implements OnInit {
     });
   }
 
-  setFilter(filter: 'hoy' | 'pasados'): void {
+  setFilter(filter: 'hoy' | 'todos' | 'pasados'): void {
     this.filter = filter;
     this.cdr.markForCheck();
   }
@@ -268,6 +300,7 @@ export class GmailGenComponent implements OnInit {
           this.showComposeModal = false;
           this.selectedGroup = null;
           this.cargarResumen();
+          this.cargarPendientesGenerales();
           this.cargarEnviadosHoy();
           this.cargarHistorial();
 

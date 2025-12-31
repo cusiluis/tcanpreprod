@@ -204,6 +204,7 @@ export class PaymentFormComponent implements OnInit {
           this.proveedores = response.data.map((p: any) => ({
             id: p.id,
             nombre: p.nombre,
+            servicio: p.servicio || 'Servicio no especificado',
             correo: p.correo
           }));
           this.filteredProveedores = this.proveedores;

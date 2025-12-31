@@ -124,6 +124,14 @@ export class FinancierosBancariaComponent implements OnInit {
 
   closeWebhookModal(): void {
     this.webhookModalVisible = false;
+    // Cerrar también el modal de subida de documentos si está abierto
+    if (this.showDocumentModal) {
+      this.closeDocumentModal();
+    }
+    // Refrescar la tabla de pagos bancarios para reflejar cambios del webhook
+    if (this.paymentRecordsComponent) {
+      this.paymentRecordsComponent.loadPagoBancarios();
+    }
   }
 
   openEditModal(registro: any): void {

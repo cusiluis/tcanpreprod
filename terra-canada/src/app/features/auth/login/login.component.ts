@@ -53,7 +53,18 @@ export class LoginComponent implements OnInit {
     this.authService.login(this.loginForm.value).subscribe({
       next: (response) => {
         this.loading = false;
-        this.router.navigate(['/dashboard']);
+        const user = response.user;
+        const role = (user?.rol_nombre || user?.role || '').toLowerCase();
+
+        if (role === 'administrador') {
+          this.router.navigate(['/dashboard']);
+        } else if (role === 'equipo') {
+          this.router.navigate(['/equipo-tarjetas']);
+        } else {
+          const modules = this.authService.getAccessibleModules();
+          const defaultModule = modules[0] || 'login';
+          this.router.navigate([`/${defaultModule}`]);
+        }
       },
       error: (error) => {
         this.loading = false;

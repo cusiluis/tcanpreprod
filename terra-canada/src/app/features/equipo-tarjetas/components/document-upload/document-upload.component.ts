@@ -14,6 +14,9 @@ interface DocumentCard {
   icon: string;
   description: string;
   files: File[];
+  scanMessage: string | null;
+  scanError: string | null;
+  isScanSuccess: boolean;
 }
 
 @Component({
@@ -25,11 +28,9 @@ interface DocumentCard {
 })
 export class DocumentUploadComponent {
   @Input() pago: PagoDisplay | null = null;
+  @Input() modulo: 'tarjetas' | 'c_bancarias' = 'tarjetas';
 
   isScanning = false;
-  scanMessage: string | null = null;
-  scanError: string | null = null;
-  isScanSuccess = false;
   activeScanCardId: string | null = null;
 
   documentCards: DocumentCard[] = [
@@ -38,14 +39,20 @@ export class DocumentUploadComponent {
       title: 'Facturas',
       icon: 'pi pi-file-pdf',
       description: 'Adjunta archivos o haz clic',
-      files: []
+      files: [],
+      scanMessage: null,
+      scanError: null,
+      isScanSuccess: false
     },
     {
       id: 'bank-doc',
       title: 'Documento Banco',
       icon: 'pi pi-file-word',
       description: 'Adjunta un archivo o haz clic',
-      files: []
+      files: [],
+      scanMessage: null,
+      scanError: null,
+      isScanSuccess: false
     }
   ];
 
@@ -59,9 +66,10 @@ export class DocumentUploadComponent {
     // La tarjeta "Documento Banco" este1 deshabilitada temporalmente
     const input = event.target as HTMLInputElement;
     if (input.files && input.files.length > 0) {
-      const card = this.documentCards.find(c => c.id === cardId);
+      const card = this.documentCards.find((c) => c.id === cardId);
       if (card) {
-        const maxFiles = cardId === 'bank-doc' ? 1 : 5;
+        // Límite: 1 PDF para Documento Banco, 3 PDFs para Facturas
+        const maxFiles = cardId === 'bank-doc' ? 1 : 3;
         const allFiles = Array.from(input.files);
         const pdfFiles = allFiles.filter((file) => {
           const type = file.type;
@@ -74,7 +82,7 @@ export class DocumentUploadComponent {
         });
 
         if (pdfFiles.length === 0) {
-          this.scanError = 'Solo se permiten archivos PDF.';
+          card.scanError = 'Solo se permiten archivos PDF.';
           return;
         }
 
@@ -83,18 +91,18 @@ export class DocumentUploadComponent {
 
         // Si se supera el máximo permitido, avisamos al usuario
         if (totalArchivos > maxFiles) {
-          const limiteTexto = maxFiles === 1 ? '1 archivo PDF' : '5 archivos PDF';
-          this.scanError = `Solo se pueden subir hasta ${limiteTexto} a la vez.`;
+          const limiteTexto = maxFiles === 1 ? '1 archivo PDF' : '3 archivos PDF';
+          card.scanError = `Solo se pueden subir hasta ${limiteTexto} a la vez.`;
         } else {
-          this.scanError = null;
+          card.scanError = null;
         }
 
         const espacioDisponible = maxFiles - card.files.length;
         if (espacioDisponible <= 0) {
           // Ya alcanzó el máximo en esta tarjeta
-          if (!this.scanError) {
-            const limiteTexto = maxFiles === 1 ? '1 archivo PDF' : '5 archivos PDF';
-            this.scanError = `Solo se permiten hasta ${limiteTexto}.`;
+          if (!card.scanError) {
+            const limiteTexto = maxFiles === 1 ? '1 archivo PDF' : '3 archivos PDF';
+            card.scanError = `Solo se permiten hasta ${limiteTexto}.`;
           }
           return;
         }
@@ -126,13 +134,18 @@ export class DocumentUploadComponent {
 
   onScanCard(cardId: string): void {
     this.activeScanCardId = cardId;
-    this.scanError = null;
-    this.scanMessage = null;
-    this.isScanSuccess = false;
+    const targetCard = this.documentCards.find(c => c.id === cardId);
+    if (targetCard) {
+      targetCard.scanError = null;
+      targetCard.scanMessage = null;
+      targetCard.isScanSuccess = false;
+    }
 
     const card = this.documentCards.find(c => c.id === cardId);
     if (!card || card.files.length === 0) {
-      this.scanError = 'Debes adjuntar al menos un archivo PDF antes de escanear.';
+      if (card) {
+        card.scanError = 'Debes adjuntar al menos un archivo PDF antes de escanear.';
+      }
       return;
     }
 
@@ -147,7 +160,9 @@ export class DocumentUploadComponent {
     });
 
     if (pdfFiles.length === 0) {
-      this.scanError = 'Solo se permiten archivos PDF.';
+      if (card) {
+        card.scanError = 'Solo se permiten archivos PDF.';
+      }
       return;
     }
 
@@ -182,7 +197,10 @@ export class DocumentUploadComponent {
         const base64 = result.split(',')[1] || '';
 
         if (!base64) {
-          this.scanError = 'No se pudo leer el contenido del archivo PDF.';
+          if (card) {
+            card.scanError = 'No se pudo leer el contenido del archivo PDF.';
+            card.scanMessage = null;
+          }
           this.isScanning = false;
           return;
         }
@@ -197,7 +215,10 @@ export class DocumentUploadComponent {
       };
 
       reader.onerror = () => {
-        this.scanError = 'Error leyendo el archivo PDF.';
+        if (card) {
+          card.scanError = 'Error leyendo el archivo PDF.';
+          card.scanMessage = null;
+        }
         this.isScanning = false;
       };
 
@@ -205,14 +226,21 @@ export class DocumentUploadComponent {
     };
 
     this.isScanning = true;
-    this.scanMessage = 'Escaneando documento...';
+    if (card) {
+      card.scanMessage = 'Escaneando documento...';
+      card.scanError = null;
+    }
     leerArchivo(0);
   }
 
   private scanDocumento(pdfBase64: string, cantidadArchivos: number): void {
+    const card = this.documentCards.find(c => c.id === this.activeScanCardId);
     this.isScanning = true;
-    this.scanError = null;
-    this.scanMessage = 'Escaneando documento...';
+    if (card) {
+      card.scanError = null;
+      card.scanMessage = 'Escaneando documento...';
+      card.isScanSuccess = false;
+    }
 
     const pagoId = this.pago?.id;
     const numeroPresta = this.pago?.numero_presta;
@@ -220,9 +248,11 @@ export class DocumentUploadComponent {
     this.pagoService.scanPagoDocumento(pdfBase64, pagoId, numeroPresta).subscribe({
       next: (response) => {
         if (response?.code === 200 && response?.estado === true) {
-          this.isScanSuccess = true;
-          this.scanMessage = response.mensaje || 'Documento validado correctamente.';
-          this.scanError = null;
+          if (card) {
+            card.isScanSuccess = true;
+            card.scanMessage = response.mensaje || 'Documento validado correctamente.';
+            card.scanError = null;
+          }
 
           // Registrar evento de auditoría por escaneo de PDF asociado a un pago
           this.registrarEventoSubidaPdf('FACTURA', cantidadArchivos);
@@ -231,23 +261,27 @@ export class DocumentUploadComponent {
           // posibles cambios de estado en las tablas que usan PagoService.
           this.pagoService.recargarPagos();
         } else {
-          this.isScanSuccess = false;
           const errorText =
             response?.error || response?.mensaje || 'Error al validar el documento.';
-          this.scanError = errorText;
-          this.scanMessage = null;
+          if (card) {
+            card.isScanSuccess = false;
+            card.scanError = errorText;
+            card.scanMessage = null;
+          }
         }
         this.isScanning = false;
         this.cdr.detectChanges();
       },
       error: (error) => {
-        this.isScanSuccess = false;
-        this.scanError =
+        if (card) {
+          card.isScanSuccess = false;
+          card.scanError =
           error.error?.error ||
           error.error?.mensaje ||
           error.message ||
           'Error desconocido al escanear el documento.';
-        this.scanMessage = null;
+          card.scanMessage = null;
+        }
         this.isScanning = false;
         this.cdr.detectChanges();
       }
@@ -258,37 +292,48 @@ export class DocumentUploadComponent {
     archivos: WebhookArchivoPdf[],
     cantidadArchivos: number
   ): void {
+    const card = this.documentCards.find((c) => c.id === this.activeScanCardId);
     this.isScanning = true;
-    this.scanError = null;
-    this.scanMessage = 'Escaneando documento...';
+    if (card) {
+      card.scanError = null;
+      card.scanMessage = 'Escaneando documento...';
+      card.isScanSuccess = false;
+    }
 
-    this.pagoService.enviarDocumentosRecibiendoPdf(archivos).subscribe({
+    this.pagoService.enviarDocumentosRecibiendoPdf(archivos, this.modulo).subscribe({
       next: (response) => {
         if (response?.code === 200 && response?.estado === true) {
-          this.isScanSuccess = true;
-          this.scanMessage = response.mensaje || 'Documentos enviados correctamente.';
-          this.scanError = null;
+          if (card) {
+            card.isScanSuccess = true;
+            card.scanMessage =
+              response.mensaje || 'Documentos enviados correctamente.';
+            card.scanError = null;
+          }
 
           // Registrar evento de auditoría por envío de uno o varios PDFs
           this.registrarEventoSubidaPdf('RECIBIENDO', cantidadArchivos);
         } else {
-          this.isScanSuccess = false;
           const errorText =
             response?.error || response?.mensaje || 'Error al procesar los documentos.';
-          this.scanError = errorText;
-          this.scanMessage = null;
+          if (card) {
+            card.isScanSuccess = false;
+            card.scanError = errorText;
+            card.scanMessage = null;
+          }
         }
         this.isScanning = false;
         this.cdr.detectChanges();
       },
       error: (error) => {
-        this.isScanSuccess = false;
-        this.scanError =
-          error.error?.error ||
-          error.error?.mensaje ||
-          error.message ||
-          'Error desconocido al escanear el documento.';
-        this.scanMessage = null;
+        if (card) {
+          card.isScanSuccess = false;
+          card.scanError =
+            error.error?.error ||
+            error.error?.mensaje ||
+            error.message ||
+            'Error desconocido al escanear el documento.';
+          card.scanMessage = null;
+        }
         this.isScanning = false;
         this.cdr.detectChanges();
       }
@@ -299,37 +344,48 @@ export class DocumentUploadComponent {
     archivo: WebhookArchivoPdf,
     cantidadArchivos: number
   ): void {
+    const card = this.documentCards.find((c) => c.id === this.activeScanCardId);
     this.isScanning = true;
-    this.scanError = null;
-    this.scanMessage = 'Escaneando documento...';
+    if (card) {
+      card.scanError = null;
+      card.scanMessage = 'Escaneando documento...';
+      card.isScanSuccess = false;
+    }
 
-    this.pagoService.enviarDocumentoBancoPdf(archivo).subscribe({
+    this.pagoService.enviarDocumentoBancoPdf(archivo, this.modulo).subscribe({
       next: (response) => {
         if (response?.code === 200 && response?.estado === true) {
-          this.isScanSuccess = true;
-          this.scanMessage = response.mensaje || 'Documento de banco enviado correctamente.';
-          this.scanError = null;
+          if (card) {
+            card.isScanSuccess = true;
+            card.scanMessage =
+              response.mensaje || 'Documento de banco enviado correctamente.';
+            card.scanError = null;
+          }
 
           // Registrar evento de auditoría por envío de PDF de banco
           this.registrarEventoSubidaPdf('RECIBIENDO', cantidadArchivos);
         } else {
-          this.isScanSuccess = false;
           const errorText =
             response?.error || response?.mensaje || 'Error al procesar el documento de banco.';
-          this.scanError = errorText;
-          this.scanMessage = null;
+          if (card) {
+            card.isScanSuccess = false;
+            card.scanError = errorText;
+            card.scanMessage = null;
+          }
         }
         this.isScanning = false;
         this.cdr.detectChanges();
       },
       error: (error) => {
-        this.isScanSuccess = false;
-        this.scanError =
+        if (card) {
+          card.isScanSuccess = false;
+          card.scanError =
           error.error?.error ||
           error.error?.mensaje ||
           error.message ||
           'Error desconocido al escanear el documento de banco.';
-        this.scanMessage = null;
+          card.scanMessage = null;
+        }
         this.isScanning = false;
         this.cdr.detectChanges();
       }

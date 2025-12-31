@@ -65,6 +65,12 @@ export class GmailGenService {
     );
   }
 
+  getCorreosPendientesGeneral(): Observable<ApiResponse<GmailEmailGroup[]>> {
+    return this.http.get<ApiResponse<GmailEmailGroup[]>>(
+      `${this.apiUrl}/pendientes-general`
+    );
+  }
+
   getResumenEnviosFecha(fecha?: string): Observable<ApiResponse<GmailEmailGroup[]>> {
     let params = new HttpParams();
     if (fecha) {

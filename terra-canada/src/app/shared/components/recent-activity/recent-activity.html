@@ -34,7 +34,7 @@
           </td>
           <td>
             <span class="status-badge" [ngClass]="getStatusClass(activity.status)">
-              {{ activity.status | uppercase }}
+              {{ getStatusLabel(activity.status) }}
             </span>
           </td>
         </tr>

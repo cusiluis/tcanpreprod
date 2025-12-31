@@ -72,7 +72,21 @@ const roleGuard = (requiredModule: string) => {
   if (!authService.hasModuleAccess(requiredModule)) {
     const user = authService.getCurrentUser();
     console.warn(`roleGuard - Usuario ${user?.username} no tiene acceso al módulo ${requiredModule}`);
-    router.navigate(['/dashboard']);
+    // Redirigir según rol del usuario a su módulo inicial por defecto
+    let targetRoute = '/login';
+
+    if (authService.isAdmin()) {
+      targetRoute = '/dashboard';
+    } else if (authService.isEquipo()) {
+      targetRoute = '/equipo-tarjetas';
+    } else {
+      const modules = authService.getAccessibleModules();
+      if (modules.length > 0) {
+        targetRoute = `/${modules[0]}`;
+      }
+    }
+
+    router.navigate([targetRoute]);
     return false;
   }
   
@@ -92,7 +106,7 @@ export const routes: Routes = [
   {
     path: 'dashboard',
     component: DashboardComponent,
-    canActivate: [authGuard]
+    canActivate: [authGuard, () => roleGuard('dashboard')]
   },
   {
     path: 'equipo-tarjetas',

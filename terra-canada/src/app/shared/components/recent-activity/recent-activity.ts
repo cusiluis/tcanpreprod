@@ -16,4 +16,11 @@ export class RecentActivityComponent {
   getStatusClass(status: string): string {
     return `status-${status}`;
   }
+
+  getStatusLabel(status: Activity['status']): string {
+    if (status === 'completado') {
+      return 'Completado';
+    }
+    return 'Sin verificación';
+  }
 }

@@ -14,7 +14,7 @@
           <i class="pi pi-cloud-upload upload-icon"></i>
           <p class="upload-text">{{ card.description }}</p>
           <p class="upload-hint" *ngIf="card.id === 'invoices'">
-            (Hasta 5 archivos PDF)
+            (Hasta 3 archivos PDF)
           </p>
           <p class="upload-hint" *ngIf="card.id === 'bank-doc'">
             (Hasta 1 archivo PDF)
@@ -59,25 +59,33 @@
         >
           <i
             class="pi"
-            [ngClass]="isScanning ? 'pi-spinner pi-spin' : 'pi-search'"
+            [ngClass]="
+              isScanning && activeScanCardId === card.id
+                ? 'pi-spinner pi-spin'
+                : 'pi-search'
+            "
           ></i>
           <span>
-            {{ isScanning ? 'Escaneando...' : ('escanearDocumento' | translate) }}
+            {{
+              isScanning && activeScanCardId === card.id
+                ? 'Escaneando...'
+                : ('escanearDocumento' | translate)
+            }}
           </span>
         </button>
         <div
           class="scan-status"
-          *ngIf="scanMessage || scanError"
+          *ngIf="card.scanMessage || card.scanError"
           [ngClass]="{
-            'scan-status--success': isScanSuccess,
-            'scan-status--error': !isScanSuccess && scanError
+            'scan-status--success': card.isScanSuccess,
+            'scan-status--error': !card.isScanSuccess && card.scanError
           }"
         >
           <i
             class="pi"
-            [ngClass]="isScanSuccess ? 'pi-check-circle' : 'pi-exclamation-triangle'"
+            [ngClass]="card.isScanSuccess ? 'pi-check-circle' : 'pi-exclamation-triangle'"
           ></i>
-          <span>{{ scanMessage || scanError }}</span>
+          <span>{{ card.scanMessage || card.scanError }}</span>
         </div>
       </div>
 
@@ -90,25 +98,33 @@
         >
           <i
             class="pi"
-            [ngClass]="isScanning ? 'pi-spinner pi-spin' : 'pi-search'"
+            [ngClass]="
+              isScanning && activeScanCardId === card.id
+                ? 'pi-spinner pi-spin'
+                : 'pi-search'
+            "
           ></i>
           <span>
-            {{ isScanning ? 'Escaneando...' : 'Escanear Documento Banco' }}
+            {{
+              isScanning && activeScanCardId === card.id
+                ? 'Escaneando...'
+                : 'Escanear Documento Banco'
+            }}
           </span>
         </button>
         <div
           class="scan-status"
-          *ngIf="scanMessage || scanError"
+          *ngIf="card.scanMessage || card.scanError"
           [ngClass]="{
-            'scan-status--success': isScanSuccess,
-            'scan-status--error': !isScanSuccess && scanError
+            'scan-status--success': card.isScanSuccess,
+            'scan-status--error': !card.isScanSuccess && card.scanError
           }"
         >
           <i
             class="pi"
-            [ngClass]="isScanSuccess ? 'pi-check-circle' : 'pi-exclamation-triangle'"
+            [ngClass]="card.isScanSuccess ? 'pi-check-circle' : 'pi-exclamation-triangle'"
           ></i>
-          <span>{{ scanMessage || scanError }}</span>
+          <span>{{ card.scanMessage || card.scanError }}</span>
         </div>
       </div>
     </div>

@@ -13,6 +13,8 @@ export interface DocumentoUsuarioResumen {
   codigo_reserva: string | null;
   origen_pago: string | null;
   id_pago: number | null;
+  prominencia?: string | null;
+  fecha_factura?: string | null;
 }
 
 export interface DocumentoUsuarioDetalle extends DocumentoUsuarioResumen {

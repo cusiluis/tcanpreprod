@@ -12,6 +12,13 @@ router.get(
 );
 
 router.get(
+  '/pendientes-general',
+  authMiddleware,
+  requirePermission('ver_resumen_pagos'),
+  (req, res) => gmailGenController.getCorreosPendientesGeneral(req, res)
+);
+
+router.get(
   '/enviados-resumen',
   authMiddleware,
   requirePermission('ver_resumen_pagos'),

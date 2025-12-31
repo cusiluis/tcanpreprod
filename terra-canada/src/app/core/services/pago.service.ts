@@ -3,6 +3,7 @@ import { HttpClient, HttpParams, HttpHeaders } from '@angular/common/http';
 import { BehaviorSubject, Observable, shareReplay, Subject } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { AuthService } from './auth.service';
+import { ProveedorService } from './proveedor.service';
 
 export interface Pago {
   id?: number;
@@ -86,7 +87,8 @@ export class PagoService {
 
   constructor(
     private http: HttpClient,
-    private authService: AuthService
+    private authService: AuthService,
+    private proveedorService: ProveedorService
   ) {}
 
   /**
@@ -118,7 +120,12 @@ export class PagoService {
               proveedor: {
                 id: pago.Proveedor?.id || pago.proveedor?.id || 0,
                 nombre: pago.Proveedor?.nombre || pago.proveedor?.nombre || 'N/A',
-                servicio: pago.Proveedor?.servicio || pago.proveedor?.servicio || undefined
+                servicio:
+                  pago.Proveedor?.servicio ||
+                  pago.proveedor?.servicio ||
+                  // Campos planos posibles desde la función pago_get_all
+                  (pago.proveedor_servicio ?? pago.ProveedorServicio ?? pago.proveedorServicio) ||
+                  undefined
               },
               tarjeta: {
                 id: pago.tarjeta?.id || 0,
@@ -133,8 +140,20 @@ export class PagoService {
           }
           
           console.log('PagoService.cargarPagos() - Pagos mapeados:', pagos);
-          console.log('PagoService.cargarPagos() - Emitiendo datos al BehaviorSubject');
-          this.pagosSubject.next(pagos);
+
+          const faltaServicioProveedor = pagos.some(
+            (p) => !p.proveedor || !p.proveedor.servicio
+          );
+
+          if (faltaServicioProveedor) {
+            console.log(
+              'PagoService.cargarPagos() - Faltan servicios de proveedores, completando desde ProveedorService'
+            );
+            this.completarServicioDesdeProveedores(pagos);
+          } else {
+            console.log('PagoService.cargarPagos() - Emitiendo datos al BehaviorSubject');
+            this.pagosSubject.next(pagos);
+          }
         } else {
           console.warn('PagoService.cargarPagos() - Respuesta sin datos:', response);
           this.pagosSubject.next([]);
@@ -156,6 +175,65 @@ export class PagoService {
   recargarPagos(): void {
     console.log('PagoService.recargarPagos() - Recargando pagos');
     this.cargarPagos();
+  }
+
+  /**
+   * Completar proveedor.servicio usando el catálogo de proveedores
+   * cuando el GET general de pagos no lo trae en la respuesta.
+   */
+  private completarServicioDesdeProveedores(pagos: PagoDisplay[]): void {
+    this.proveedorService.getAll(1, 500).subscribe({
+      next: (response: any) => {
+        let proveedores: any[] = [];
+
+        if (Array.isArray(response?.data)) {
+          proveedores = response.data;
+        } else if (response?.data && Array.isArray(response.data.data)) {
+          proveedores = response.data.data;
+        }
+
+        const servicioPorProveedorId = new Map<number, string>();
+        proveedores.forEach((prov: any) => {
+          if (prov && typeof prov.id === 'number' && prov.servicio) {
+            servicioPorProveedorId.set(prov.id, prov.servicio);
+          }
+        });
+
+        const pagosConServicio = pagos.map((pago) => {
+          if (pago.proveedor?.servicio) {
+            return pago;
+          }
+
+          const servicio = servicioPorProveedorId.get(pago.proveedor?.id || 0);
+          if (!servicio) {
+            return pago;
+          }
+
+          return {
+            ...pago,
+            proveedor: {
+              ...pago.proveedor,
+              servicio
+            }
+          };
+        });
+
+        console.log(
+          'PagoService.completarServicioDesdeProveedores() - Pagos actualizados con servicio de proveedor:',
+          pagosConServicio
+        );
+
+        this.pagosSubject.next(pagosConServicio);
+      },
+      error: (error) => {
+        console.error(
+          'PagoService.completarServicioDesdeProveedores() - Error obteniendo proveedores:',
+          error
+        );
+        // En caso de error, emitimos los pagos originales sin modificar
+        this.pagosSubject.next(pagos);
+      }
+    });
   }
 
   /**
@@ -226,7 +304,8 @@ export class PagoService {
    * sin modificar estados ni verificación de pagos.
    */
   enviarDocumentosRecibiendoPdf(
-    archivos: WebhookArchivoPdf[]
+    archivos: WebhookArchivoPdf[],
+    modulo: 'tarjetas' | 'c_bancarias' = 'tarjetas'
   ): Observable<PagoScanResponse> {
     const currentUser = this.authService.getCurrentUser();
 
@@ -242,6 +321,7 @@ export class PagoService {
       usuario,
       id_usuario,
       tipo_usuario,
+      modulo,
       ip: '',
       archivos
     };
@@ -304,7 +384,8 @@ export class PagoService {
    * Se reutiliza la lógica de emisión del modal de resultado.
    */
   enviarDocumentoBancoPdf(
-    archivo: WebhookArchivoPdf
+    archivo: WebhookArchivoPdf,
+    modulo: 'tarjetas' | 'c_bancarias' = 'tarjetas'
   ): Observable<PagoScanResponse> {
     const currentUser = this.authService.getCurrentUser();
 
@@ -320,6 +401,7 @@ export class PagoService {
       usuario,
       id_usuario,
       tipo_usuario,
+      modulo,
       ip: '',
       archivos: [archivo]
     };

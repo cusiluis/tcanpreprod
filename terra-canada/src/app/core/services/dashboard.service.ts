@@ -17,8 +17,10 @@ export class DashboardService {
   private readonly apiUrl = 'https://terra-canada-test-back.vamw1k.easypanel.host/api/v1/dashboard';
 
   constructor(private http: HttpClient) {
+    // Sólo inicializamos el menú aquí; los datos de dashboard se cargan
+    // explícitamente desde el módulo de Dashboard cuando el usuario
+    // realmente tiene acceso y entra a ese módulo.
     this.initializeMenuItems();
-    this.loadDashboardData();
   }
 
   private initializeMenuItems(): void {
@@ -245,15 +247,8 @@ export class DashboardService {
       const dateStr = fecha.toISOString().slice(0, 10);
       const timeStr = fecha.toTimeString().slice(0, 5);
 
-      const estadoRaw: string = (item.estado || '').toString().toUpperCase();
       const verificado = !!item.verificado;
-
-      let status: Activity['status'] = 'pendiente';
-      if (estadoRaw === 'PAGADO' && verificado) {
-        status = 'pagado';
-      } else if (verificado) {
-        status = 'completado';
-      }
+      const status: Activity['status'] = verificado ? 'completado' : 'sin-verificacion';
 
       const activity: Activity = {
         id: String(item.id ?? index + 1),

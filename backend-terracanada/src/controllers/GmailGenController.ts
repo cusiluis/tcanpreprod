@@ -52,6 +52,55 @@ export class GmailGenController {
     }
   }
 
+  async getCorreosPendientesGeneral(
+    req: AuthRequest,
+    res: Response
+  ): Promise<void> {
+    try {
+      const usuarioId = req.user?.id;
+
+      if (!usuarioId) {
+        res.status(401).json({
+          success: false,
+          error: { message: 'Usuario no autenticado' },
+          timestamp: new Date().toISOString()
+        });
+        return;
+      }
+
+      const result = await gmailGenService.getCorreosPendientesGeneral(
+        Number(usuarioId)
+      );
+
+      const response: ApiResponse = {
+        success: result.success,
+        data: result.data,
+        timestamp: new Date().toISOString()
+      };
+
+      if (!result.success) {
+        response.error = {
+          message:
+            result.error ||
+            'Error obteniendo correos pendientes generales para módulo Gmail-GEN'
+        };
+      }
+
+      res.status(result.statusCode).json(response);
+    } catch (error) {
+      res.status(500).json({
+        success: false,
+        error: {
+          message:
+            error instanceof Error
+              ? error.message
+              : 'Error obteniendo correos pendientes generales para módulo Gmail-GEN'
+        },
+        timestamp: new Date().toISOString()
+      });
+    }
+  }
+
   async getResumenEnviosFecha(req: AuthRequest, res: Response): Promise<void> {
     try {
       const usuarioId = req.user?.id;

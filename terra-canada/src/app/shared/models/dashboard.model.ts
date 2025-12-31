@@ -17,7 +17,7 @@ export interface Activity {
   action: string;
   amount?: number;
   currency?: string;
-  status: 'pagado' | 'pendiente' | 'completado';
+  status: 'completado' | 'sin-verificacion';
 }
 
 export interface MenuItem {

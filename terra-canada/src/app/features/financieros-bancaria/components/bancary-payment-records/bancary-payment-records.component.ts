@@ -65,16 +65,16 @@ export class BancaryPaymentRecordsComponent implements OnInit {
       width: '130px'
     },
     {
-      key: 'reference',
-      label: 'Referencia',
-      type: 'text',
-      width: '120px'
-    },
-    {
       key: 'amount',
       label: 'Monto',
       type: 'currency',
       width: '100px'
+    },
+    {
+      key: 'code',
+      label: 'NºPresta',
+      type: 'text',
+      width: '120px'
     },
     {
       key: 'currency',
@@ -108,12 +108,6 @@ export class BancaryPaymentRecordsComponent implements OnInit {
       label: 'Usuario',
       type: 'text',
       width: '120px'
-    },
-    {
-      key: 'code',
-      label: 'Código',
-      type: 'text',
-      width: '100px'
     }
   ];
 
