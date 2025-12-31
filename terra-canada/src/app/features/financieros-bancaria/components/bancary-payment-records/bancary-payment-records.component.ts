@@ -122,13 +122,15 @@ export class BancaryPaymentRecordsComponent implements OnInit {
       id: 'edit',
       label: 'Editar',
       icon: 'pi pi-pencil',
-      class: 'edit-btn'
+      class: 'edit-btn',
+      disabled: (row) => !!row.verification
     },
     {
       id: 'delete',
       label: 'Eliminar',
       icon: 'pi pi-trash',
-      class: 'delete-btn'
+      class: 'delete-btn',
+      disabled: (row) => row?.status?.toUpperCase() === 'PAGADO' || !!row.verification
     }
   ];
 
@@ -339,3 +341,4 @@ export class BancaryPaymentRecordsComponent implements OnInit {
     this.applyFilters();
   }
 }
+
