@@ -54,13 +54,6 @@ export class DashboardService {
         translationKey: 'menuFinancierosTarjetas'
       },
       {
-        id: 'analisis',
-        label: 'Análisis',
-        icon: 'pi pi-chart-bar',
-        route: '/analisis',
-        translationKey: 'menuAnalisis'
-      },
-      {
         id: 'gmail-gen',
         label: 'Gmail-GEN',
         icon: 'pi pi-envelope',
@@ -68,11 +61,11 @@ export class DashboardService {
         translationKey: 'menuGmailGen'
       },
       {
-        id: 'eventos',
-        label: 'Eventos',
-        icon: 'pi pi-calendar',
-        route: '/eventos',
-        translationKey: 'menuEventos'
+        id: 'analisis',
+        label: 'Análisis',
+        icon: 'pi pi-chart-bar',
+        route: '/analisis',
+        translationKey: 'menuAnalisis'
       },
       {
         id: 'documentos',
@@ -87,6 +80,13 @@ export class DashboardService {
         icon: 'pi pi-credit-card',
         route: '/tarjetas',
         translationKey: 'menuTarjetas'
+      },
+      {
+        id: 'eventos',
+        label: 'Eventos',
+        icon: 'pi pi-calendar',
+        route: '/eventos',
+        translationKey: 'menuEventos'
       },
       {
         id: 'configuracion',
@@ -273,3 +273,4 @@ export class DashboardService {
     return this.menuItems$;
   }
 }
+
