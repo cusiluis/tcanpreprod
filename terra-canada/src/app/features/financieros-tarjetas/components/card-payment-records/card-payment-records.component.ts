@@ -116,13 +116,15 @@ export class CardPaymentRecordsComponent implements OnInit, OnDestroy {
       id: 'edit',
       label: 'Editar',
       icon: 'pi pi-pencil',
-      class: 'edit-btn'
+      class: 'edit-btn',
+      disabled: (row) => !!row.esta_verificado
     },
     {
       id: 'delete',
       label: 'Eliminar',
       icon: 'pi pi-trash',
-      class: 'delete-btn'
+      class: 'delete-btn',
+      disabled: (row) => row?.estado?.toUpperCase() === 'PAGADO' || !!row.esta_verificado
     }
   ];
 
@@ -299,3 +301,4 @@ export class CardPaymentRecordsComponent implements OnInit, OnDestroy {
     return verified ? 'verified' : 'not-verified';
   }
 }
+
