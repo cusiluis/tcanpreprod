@@ -8,7 +8,7 @@ export type Language = 'es' | 'en' | 'fr';
   providedIn: 'root'
 })
 export class TranslationService {
-  private currentLanguageSubject = new BehaviorSubject<Language>('es');
+  private currentLanguageSubject = new BehaviorSubject<Language>('fr');
   public currentLanguage$ = this.currentLanguageSubject.asObservable();
 
   constructor() {
@@ -72,3 +72,4 @@ export class TranslationService {
     }
   }
 }
+
