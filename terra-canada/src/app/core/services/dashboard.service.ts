@@ -255,9 +255,12 @@ export class DashboardService {
         date: dateStr,
         time: timeStr,
         user: item.proveedor || 'N/A',
+        client: item.cliente || undefined,
         action: item.correo || item.tipo_pago || 'Pago registrado',
         amount: typeof item.total === 'number' ? item.total : Number(item.total || 0),
         currency: 'CAD',
+        paymentStatus: (item.estado as Activity['paymentStatus']) || undefined,
+        verified: verificado,
         status
       };
 
