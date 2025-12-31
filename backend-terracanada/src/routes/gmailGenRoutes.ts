@@ -33,7 +33,7 @@ router.get(
 );
 
 router.post(
-  '/enviar',
+  '/v1/api/enviar',
   authMiddleware,
   requirePermission('crear_envio_resumen'),
   (req, res) => gmailGenController.enviarCorreoProveedor(req, res)
