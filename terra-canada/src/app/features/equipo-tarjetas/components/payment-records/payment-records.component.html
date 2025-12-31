@@ -109,18 +109,20 @@
               <button
                 type="button"
                 class="action-btn edit-btn"
+                *ngIf="!record?.esta_verificado"
                 [title]="'editar' | translate"
                 (click)="onAction('edit', record)"
               >
                 <i class="pi pi-pencil"></i>
               </button>
-              <button
+               <button
                 type="button"
-                class="action-btn download-btn"
-                [title]="'descargar' | translate"
-                (click)="onAction('download', record)"
+                class="action-btn delete-btn"
+                *ngIf="!record?.esta_verificado && record?.estado !== 'PAGADO'"
+                [title]="'eliminar' | translate"
+                (click)="onAction('delete', record)"
               >
-                <i class="pi pi-download"></i>
+                <i class="pi pi-trash"></i>
               </button>
             </div>
           </td>
@@ -155,3 +157,4 @@
     </div>
   </div>
   </div>
+
