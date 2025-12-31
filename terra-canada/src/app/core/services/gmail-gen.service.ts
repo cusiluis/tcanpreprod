@@ -49,7 +49,7 @@ export interface GmailEnvioHistorial {
   providedIn: 'root'
 })
 export class GmailGenService {
-  private apiUrl = 'https://terra-canada-test-back.vamw1k.easypanel.host/api/v1/gmail-gen';
+  private apiUrl = 'https://terra-canada-test-back.vamw1k.easypanel.host/api/v1/gmailgen';
 
   constructor(private http: HttpClient) {}
 
