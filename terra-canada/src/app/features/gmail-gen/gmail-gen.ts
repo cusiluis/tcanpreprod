@@ -251,8 +251,8 @@ export class GmailGenComponent implements OnInit {
   openComposeModal(group: GmailEmailGroup): void {
     this.selectedGroup = group;
     this.composeForm.para = group.correoContacto;
-    this.composeForm.asunto = 'Confirmación de Pago';
-    this.composeForm.mensaje = 'Hola, te envío los pagos que te hicimos. Revísalos.';
+    this.composeForm.asunto = 'Confirmation de paiement';
+    this.composeForm.mensaje = 'Bonjour, je vous envoie les paiements que nous vous avons faits. Allez les voir.';
     this.showComposeModal = true;
   }
 
@@ -337,8 +337,8 @@ export class GmailGenComponent implements OnInit {
     this.selectedEmailInfo = {
       proveedorNombre: group.proveedorNombre,
       correoElectronico: info?.correoElectronico || group.correoContacto,
-      asunto: info?.asunto || 'Confirmación de Pago',
-      mensaje: info?.mensaje || 'Detalle de pagos enviados.',
+      asunto: info?.asunto || 'Confirmation de paiement',
+      mensaje: info?.mensaje || 'Détails des paiements envoyés.',
       totalPagos: group.totalPagos,
       totalMonto: group.totalMonto,
       fechaEnvioTexto: fecha.toLocaleString()
@@ -395,3 +395,4 @@ export class GmailGenComponent implements OnInit {
     this.showDetailsModal = false;
   }
 }
+
