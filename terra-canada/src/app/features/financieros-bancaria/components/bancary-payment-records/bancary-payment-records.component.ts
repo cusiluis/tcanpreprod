@@ -9,11 +9,10 @@ import { DatePickerModule } from 'primeng/datepicker';
 export interface BancaryPaymentRecord {
   id: number;
   date: string;
-  bank: string;
-  accountType: string;
-  reference: string;
+  clienteNombre: string;
+  proveedorNombre: string;
+  cuentaNumero: string;
   amount: number;
-  currency: string;
   user: string;
   status: 'A PAGAR' | 'PAGADO';
   verification: boolean;
@@ -53,16 +52,16 @@ export class BancaryPaymentRecordsComponent implements OnInit {
       width: '100px'
     },
     {
-      key: 'bank',
-      label: 'Banco',
+      key: 'clienteNombre',
+      label: 'Cliente',
       type: 'text',
       width: '150px'
     },
     {
-      key: 'accountType',
-      label: 'Tipo de Cuenta',
+      key: 'proveedorNombre',
+      label: 'Proveedor',
       type: 'text',
-      width: '130px'
+      width: '150px'
     },
     {
       key: 'amount',
@@ -77,10 +76,10 @@ export class BancaryPaymentRecordsComponent implements OnInit {
       width: '120px'
     },
     {
-      key: 'currency',
-      label: 'Moneda',
+      key: 'cuentaNumero',
+      label: 'Cuenta',
       type: 'text',
-      width: '80px'
+      width: '150px'
     },
     {
       key: 'status',
@@ -171,11 +170,10 @@ export class BancaryPaymentRecordsComponent implements OnInit {
     return pagos.map((pago) => ({
       id: pago.id,
       date: new Date(pago.fecha_creacion).toISOString().split('T')[0],
-      bank: pago.cuenta_bancaria?.nombre_banco || 'N/A',
-      accountType: 'Cuenta Bancaria',
-      reference: pago.numero_presta,
+      clienteNombre: pago.cliente?.nombre || 'N/A',
+      proveedorNombre: pago.proveedor?.nombre || 'N/A',
+      cuentaNumero: pago.cuenta_bancaria?.numero_cuenta || 'N/A',
       amount: pago.monto,
-      currency: 'CAD',
       user: pago.registrado_por?.nombre_completo || 'N/A',
       status: pago.estado as 'A PAGAR' | 'PAGADO',
       verification: pago.esta_verificado,
@@ -283,8 +281,9 @@ export class BancaryPaymentRecordsComponent implements OnInit {
       const term = this.searchTerm.toLowerCase();
       data = data.filter(r =>
         (r.date || '').toLowerCase().includes(term) ||
-        (r.bank || '').toLowerCase().includes(term) ||
-        (r.reference || '').toLowerCase().includes(term) ||
+        (r.clienteNombre || '').toLowerCase().includes(term) ||
+        (r.proveedorNombre || '').toLowerCase().includes(term) ||
+        (r.cuentaNumero || '').toLowerCase().includes(term) ||
         (r.user || '').toLowerCase().includes(term) ||
         (r.code || '').toLowerCase().includes(term)
       );
@@ -341,4 +340,3 @@ export class BancaryPaymentRecordsComponent implements OnInit {
     this.applyFilters();
   }
 }
-
