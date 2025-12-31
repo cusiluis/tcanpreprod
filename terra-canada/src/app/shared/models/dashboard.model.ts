@@ -13,11 +13,14 @@ export interface Activity {
   id: string;
   date: string;
   time: string;
-  user: string;
+  user: string; // Proveedor
+  client?: string; // Nuevo: cliente asociado al pago
   action: string;
   amount?: number;
   currency?: string;
-  status: 'completado' | 'sin-verificacion';
+  paymentStatus?: 'PAGADO' | 'POR_PAGAR' | string; // Nuevo: estado de pago
+  verified?: boolean; // Nuevo: flag de verificación cruda
+  status: 'completado' | 'sin-verificacion'; // Mantiene estado derivado para compatibilidad
 }
 
 export interface MenuItem {
