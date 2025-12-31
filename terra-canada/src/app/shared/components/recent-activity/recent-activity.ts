@@ -23,4 +23,32 @@ export class RecentActivityComponent {
     }
     return 'Sin verificación';
   }
+
+  getPaymentStatusClass(paymentStatus: Activity['paymentStatus'] | undefined): string {
+    if (!paymentStatus) {
+      return 'status-desconocido';
+    }
+    const normalized = String(paymentStatus).toUpperCase();
+    if (normalized === 'PAGADO') {
+      return 'status-completado';
+    }
+    if (normalized === 'POR_PAGAR' || normalized === 'PENDIENTE') {
+      return 'status-sin-verificacion';
+    }
+    return 'status-desconocido';
+  }
+
+  getPaymentStatusLabel(paymentStatus: Activity['paymentStatus'] | undefined): string {
+    if (!paymentStatus) {
+      return '-';
+    }
+    const normalized = String(paymentStatus).toUpperCase();
+    if (normalized === 'PAGADO') {
+      return 'Pagado';
+    }
+    if (normalized === 'POR_PAGAR' || normalized === 'PENDIENTE') {
+      return 'Por pagar';
+    }
+    return normalized;
+  }
 }
