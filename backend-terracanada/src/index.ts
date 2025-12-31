@@ -16,7 +16,8 @@ const PORT = process.env.PORT || 3000;
 // Middleware de seguridad
 app.use(helmet());
 app.use(cors({
-  origin: process.env.CORS_ORIGIN || 'http://localhost:4200',
+  // origin: process.env.CORS_ORIGIN || 'http://localhost:4200',
+  origin: 'https://tcanada.salazargroup.cloud',
   credentials: true
 }));
 

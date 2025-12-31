@@ -33,7 +33,7 @@ router.get(
 );
 
 router.post(
-  'https://terra-canada-test-back.vamw1k.easypanel.host/api/v1/gmail-gen/enviar',
+  '/enviar',
   authMiddleware,
   requirePermission('crear_envio_resumen'),
   (req, res) => gmailGenController.enviarCorreoProveedor(req, res)
