@@ -67,7 +67,7 @@ app.use('/api/v1/proveedores', proveedorRoutes);
 app.use('/api/v1/eventos', eventoRoutes);
 app.use('/api/v1/tarjetas', tarjetaRoutes);
 app.use('/api/v1/debug', debugRoutes);
-app.use('/api/v1/gmailgen', gmailGenRoutes);
+app.use('/api/v1/gmail-gen', gmailGenRoutes);
 app.use('/api/v1/documentos-usuario', documentoUsuarioRoutes);
 app.use('/api/v1/dashboard', dashboardRoutes);
 app.use('/api/v1/analisis', analisisRoutes);
