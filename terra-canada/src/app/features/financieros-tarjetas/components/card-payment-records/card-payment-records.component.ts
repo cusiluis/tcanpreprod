@@ -246,6 +246,16 @@ export class CardPaymentRecordsComponent implements OnInit, OnDestroy {
     } else if (this.verificationFilter === 'no-verificados') {
       data = data.filter(r => !r.esta_verificado);
     }
+    if (this.searchTerm) {
+      const term = this.searchTerm.toLowerCase();
+      data = data.filter((r) =>
+        (r.fecha_creacion || '').toLowerCase().includes(term) ||
+        (r.cliente?.nombre || '').toLowerCase().includes(term) ||
+        (r.proveedor?.nombre || '').toLowerCase().includes(term) ||
+        (r.numero_presta || '').toLowerCase().includes(term) ||
+        (r.registrado_por?.nombre_completo || '').toLowerCase().includes(term)
+      );
+    }
 
     this.filteredPagos = data;
     this.cdr.markForCheck();
@@ -301,4 +311,5 @@ export class CardPaymentRecordsComponent implements OnInit, OnDestroy {
     return verified ? 'verified' : 'not-verified';
   }
 }
+
 
