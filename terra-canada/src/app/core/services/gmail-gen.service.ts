@@ -105,7 +105,7 @@ export class GmailGenService {
       body.mensaje = input.mensaje;
     }
 
-    return this.http.post<ApiResponse<any>>(`${this.apiUrl}/enviar`, body);
+    return this.http.post<ApiResponse<any>>(`${this.apiUrl}/gmail-gen/enviar`, body);
   }
 
   getHistorialEnvios(
