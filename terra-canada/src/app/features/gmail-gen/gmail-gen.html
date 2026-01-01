@@ -340,14 +340,11 @@
             <div class="form-group">
               <label>Para:</label>
               <input
-                type="text"
-                name="para"
-                [value]="composeForm.para"
-                readonly
-                aria-readonly="true"
-                tabindex="-1"
-                class="static-input"
-              />
+  type="email"
+  name="para"
+  [(ngModel)]="composeForm.para"
+  required
+/>
             </div>
 
             <div class="form-group">
@@ -458,4 +455,5 @@
     </div>
   </main>
 </div>
+
 
