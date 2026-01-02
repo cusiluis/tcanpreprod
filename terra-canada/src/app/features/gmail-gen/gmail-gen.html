@@ -37,19 +37,10 @@
 
     <!-- Content Container -->
     <div class="content-container">
-      <!-- Tabs Hoy / Pasados -->
+      <!-- Tabs Todos / Pasados -->
       <div class="filters-row">
         <div class="filters-spacer"></div>
         <div class="date-toggle">
-          <button
-            type="button"
-            class="toggle-btn"
-            [class.active]="filter === 'hoy'"
-            (click)="setFilter('hoy')"
-          >
-            <i class="pi pi-calendar"></i>
-            <span>Hoy</span>
-          </button>
           <button
             type="button"
             class="toggle-btn"
@@ -71,128 +62,10 @@
         </div>
       </div>
 
-      <!-- Sección HOY: pendientes (tarjetas activas) + enviados hoy (tarjetas grises) -->
-      <ng-container *ngIf="filter === 'hoy'">
-        <div class="section-title">
-          <h2>Correos pendientes de envío (hoy)</h2>
-        </div>
-
-        <div class="cards-grid">
-          <div
-            class="provider-card provider-card--teal"
-            *ngFor="let group of filteredGroups"
-          >
-            <div class="card-header">
-              <h3>{{ group.proveedorNombre }}</h3>
-              <button type="button" class="card-menu-btn">
-                <i class="pi pi-ellipsis-v"></i>
-              </button>
-            </div>
-
-            <div class="payments-list">
-              <div class="payment-item" *ngFor="let pago of group.pagos">
-                <div class="payment-labels">
-                  <div class="label-row">
-                    <span class="label">Cliente</span>
-                    <span class="value strong">{{ pago.cliente }}</span>
-                  </div>
-                  <div class="label-row">
-                    <span class="label">Monto Pagado</span>
-                    <span class="value amount">
-                      {{ pago.monto | currency:'USD':'symbol':'1.2-2' }}
-                    </span>
-                  </div>
-                  <div class="label-row">
-                    <span class="label">Código Referencia</span>
-                    <span class="value code">{{ pago.codigo }}</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div class="card-footer">
-              <div class="footer-left">
-                <span class="footer-count">{{ group.totalPagos }} pagos</span>
-                <span class="footer-total">
-                  $ {{ group.totalMonto | number:'1.2-2' }}
-                </span>
-              </div>
-
-              <div class="footer-right">
-                <button
-                  type="button"
-                  class="btn-send-email"
-                  (click)="openComposeModal(group)"
-                >
-                  <i class="pi pi-send"></i>
-                  <span>Enviar Gmail</span>
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Tarjetas de correos ENVIADOS HOY (gris, solo ver detalles) -->
-        <div class="section-title section-title--sub" *ngIf="sentGroupsToday.length > 0">
-          <h3>Correos enviados hoy</h3>
-        </div>
-
-        <div class="cards-grid" *ngIf="sentGroupsToday.length > 0">
-          <div
-            class="provider-card provider-card--sent"
-            *ngFor="let group of sentGroupsToday"
-          >
-            <div class="card-header">
-              <h3>{{ group.proveedorNombre }}</h3>
-            </div>
-
-            <div class="payments-list">
-              <div class="payment-item" *ngFor="let pago of group.pagos">
-                <div class="payment-labels">
-                  <div class="label-row">
-                    <span class="label">Cliente</span>
-                    <span class="value strong">{{ pago.cliente }}</span>
-                  </div>
-                  <div class="label-row">
-                    <span class="label">Monto Pagado</span>
-                    <span class="value amount">
-                      {{ pago.monto | currency:'USD':'symbol':'1.2-2' }}
-                    </span>
-                  </div>
-                  <div class="label-row">
-                    <span class="label">Código Referencia</span>
-                    <span class="value code">{{ pago.codigo }}</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div class="card-footer card-footer--sent">
-              <div class="footer-left">
-                <span class="footer-count">{{ group.totalPagos }} pagos</span>
-                <span class="footer-total">
-                  $ {{ group.totalMonto | number:'1.2-2' }}
-                </span>
-              </div>
-
-              <div class="footer-right footer-right--sent">
-                <button
-                  type="button"
-                  class="btn-link"
-                  (click)="openEnvioFromSummary(group)"
-                >
-                  Ver detalles
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </ng-container>
-
-      <!-- Sección TODOS: todos los correos pendientes sin filtrar por fecha -->
+      <!-- Sección TODOS: correos pendientes (hoy y otros días) + enviados hoy -->
       <ng-container *ngIf="filter === 'todos'">
         <div class="section-title">
-          <h2>Todos los correos pendientes de envío</h2>
+          <h2>Correos pendientes de envío</h2>
         </div>
 
         <div class="cards-grid" *ngIf="filteredGroups.length > 0">
@@ -253,6 +126,62 @@
         <div class="history-empty" *ngIf="filteredGroups.length === 0">
           <i class="pi pi-inbox"></i>
           <span>No hay correos pendientes de envío.</span>
+        </div>
+
+        <!-- Tarjetas de correos ENVIADOS HOY (gris, solo ver detalles) -->
+        <div class="section-title section-title--sub" *ngIf="sentGroupsToday.length > 0">
+          <h3>Correos enviados hoy</h3>
+        </div>
+
+        <div class="cards-grid" *ngIf="sentGroupsToday.length > 0">
+          <div
+            class="provider-card provider-card--sent"
+            *ngFor="let group of sentGroupsToday"
+          >
+            <div class="card-header">
+              <h3>{{ group.proveedorNombre }}</h3>
+            </div>
+
+            <div class="payments-list">
+              <div class="payment-item" *ngFor="let pago of group.pagos">
+                <div class="payment-labels">
+                  <div class="label-row">
+                    <span class="label">Cliente</span>
+                    <span class="value strong">{{ pago.cliente }}</span>
+                  </div>
+                  <div class="label-row">
+                    <span class="label">Monto Pagado</span>
+                    <span class="value amount">
+                      {{ pago.monto | currency:'USD':'symbol':'1.2-2' }}
+                    </span>
+                  </div>
+                  <div class="label-row">
+                    <span class="label">Código Referencia</span>
+                    <span class="value code">{{ pago.codigo }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="card-footer card-footer--sent">
+              <div class="footer-left">
+                <span class="footer-count">{{ group.totalPagos }} pagos</span>
+                <span class="footer-total">
+                  $ {{ group.totalMonto | number:'1.2-2' }}
+                </span>
+              </div>
+
+              <div class="footer-right footer-right--sent">
+                <button
+                  type="button"
+                  class="btn-link"
+                  (click)="openEnvioFromSummary(group)"
+                >
+                  Ver detalles
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       </ng-container>
 
@@ -340,11 +269,14 @@
             <div class="form-group">
               <label>Para:</label>
               <input
-  type="email"
-  name="para"
-  [(ngModel)]="composeForm.para"
-  required
-/>
+                type="text"
+                name="para"
+                [value]="composeForm.para"
+                readonly
+                aria-readonly="true"
+                tabindex="-1"
+                class="static-input"
+              />
             </div>
 
             <div class="form-group">
@@ -440,6 +372,48 @@
               {{ selectedEmailInfo.totalMonto | number:'1.2-2' }}
             </span>
           </div>
+          <div
+            class="payments-summary"
+            *ngIf="selectedEmailInfo.pagosDetallados?.length"
+          >
+            <div class="summary-header">
+              <i class="pi pi-list"></i>
+              <span>Detalle de pagos enviados</span>
+            </div>
+            <div class="summary-list">
+              <div
+                class="summary-item"
+                *ngFor="let pago of selectedEmailInfo.pagosDetallados"
+              >
+                <div class="summary-client">{{ pago.cliente }}</div>
+                <div class="summary-code">
+                  # {{ pago.codigo }}
+                  <span class="summary-code-extra" *ngIf="pago.tipo_pago">
+                    ({{ pago.tipo_pago }})
+                  </span>
+                </div>
+                <div class="summary-amount">
+                  {{ pago.monto | currency:'USD':'symbol':'1.2-2' }}
+                </div>
+                <div class="summary-extra" *ngIf="pago.medio_pago">
+                  <span *ngIf="pago.tipo_pago === 'TARJETA'">
+                    {{ pago.medio_pago?.tipo_tarjeta }}
+                    &bull;
+                    {{ pago.medio_pago?.numero }}
+                  </span>
+                  <span *ngIf="pago.tipo_pago === 'BANCARIO'">
+                    {{ pago.medio_pago?.cuenta }}
+                    <span *ngIf="pago.medio_pago?.moneda">
+                      ({{ pago.medio_pago?.moneda }})
+                    </span>
+                  </span>
+                </div>
+                <div class="summary-date" *ngIf="pago.fecha_creacion">
+                  {{ pago.fecha_creacion | date:'short' }}
+                </div>
+              </div>
+            </div>
+          </div>
           <div class="info-row">
             <span class="info-label">Fecha y hora de envío</span>
             <span class="info-value">{{ selectedEmailInfo.fechaEnvioTexto }}</span>
@@ -455,5 +429,3 @@
     </div>
   </main>
 </div>
-
-

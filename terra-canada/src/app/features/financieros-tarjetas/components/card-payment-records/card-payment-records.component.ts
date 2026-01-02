@@ -246,6 +246,8 @@ export class CardPaymentRecordsComponent implements OnInit, OnDestroy {
     } else if (this.verificationFilter === 'no-verificados') {
       data = data.filter(r => !r.esta_verificado);
     }
+
+    // Filtro por búsqueda libre
     if (this.searchTerm) {
       const term = this.searchTerm.toLowerCase();
       data = data.filter((r) =>
@@ -311,5 +313,3 @@ export class CardPaymentRecordsComponent implements OnInit, OnDestroy {
     return verified ? 'verified' : 'not-verified';
   }
 }
-
-

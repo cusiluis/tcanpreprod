@@ -40,6 +40,9 @@ export class TarjetasListComponent implements OnInit, OnDestroy {
 
   // Permisos del usuario
   isAdmin = false;
+  canCreate = false;
+  canEdit = false;
+  canDelete = false;
 
   // Subject para desuscribirse
   private destroy$ = new Subject<void>();
@@ -63,6 +66,9 @@ export class TarjetasListComponent implements OnInit, OnDestroy {
     // Verificar si el usuario es admin
     this.isAdmin = this.authService.isAdmin();
     console.log('TarjetasListComponent - isAdmin:', this.isAdmin);
+    this.canCreate = this.isAdmin || this.authService.hasPermission('tarjetas.crear');
+    this.canEdit = this.isAdmin || this.authService.hasPermission('tarjetas.editar');
+    this.canDelete = this.isAdmin || this.authService.hasPermission('tarjetas.eliminar_permanente');
     
     // Configurar suscripción PRIMERO
     this.setupTarjetasSubscription();

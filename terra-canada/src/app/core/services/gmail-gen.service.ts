@@ -28,7 +28,26 @@ export interface GmailEmailGroup {
   pagos: GmailPaymentRecord[];
   totalPagos: number;
   totalMonto: number;
+  fechaResumen?: string;
   ultimoEnvio?: GmailUltimoEnvio;
+}
+
+export interface GmailEnvioHistorialPagoMedio {
+  titular?: string;
+  numero?: string;
+  tipo_tarjeta?: string;
+  cuenta?: string;
+  moneda?: string;
+}
+
+export interface GmailEnvioHistorialPago {
+  id_pago: number;
+  cliente: string;
+  monto: number;
+  codigo: string;
+  fecha_creacion?: string;
+  tipo_pago?: string;
+  medio_pago?: GmailEnvioHistorialPagoMedio;
 }
 
 export interface GmailEnvioHistorial {
@@ -36,13 +55,16 @@ export interface GmailEnvioHistorial {
   proveedor: {
     id: number;
     nombre: string;
+    correo?: string;
   };
   fecha_resumen: string;
   cantidad_pagos: number;
   monto_total: number;
   asunto: string;
+  cuerpo_correo?: string;
   fecha_envio: string;
   estado: string;
+  pagos?: GmailEnvioHistorialPago[];
 }
 
 @Injectable({

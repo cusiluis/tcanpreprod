@@ -293,6 +293,21 @@ export class AuthService {
       );
     }
 
+    if (user.rol_nombre?.toLowerCase() === 'supervisor') {
+      const module = moduleName.toLowerCase();
+      return (
+        module === 'dashboard' ||
+        module === 'financieros' ||
+        module === 'financieros-tarjetas' ||
+        module === 'tarjetas' ||
+        module === 'documentos' ||
+        module === 'eventos' ||
+        module === 'configuracion' ||
+        module === 'gmail-gen' ||
+        module === 'analisis'
+      );
+    }
+
     return false;
   }
 
@@ -305,6 +320,10 @@ export class AuthService {
 
     if (user.rol_nombre?.toLowerCase() === 'administrador') {
       return ['dashboard', 'tarjetas', 'financieros-tarjetas', 'pagos', 'clientes', 'proveedores', 'eventos', 'configuracion', 'gmail-gen'];
+    }
+
+    if (user.rol_nombre?.toLowerCase() === 'supervisor') {
+      return ['dashboard', 'financieros', 'financieros-tarjetas', 'tarjetas', 'documentos', 'eventos', 'configuracion', 'gmail-gen', 'analisis'];
     }
 
     if (user.rol_nombre?.toLowerCase() === 'equipo') {
@@ -326,6 +345,22 @@ export class AuthService {
     // Admin tiene todos los permisos
     if (user.rol_nombre?.toLowerCase() === 'administrador') {
       return true;
+    }
+
+    if (user.rol_nombre?.toLowerCase() === 'supervisor') {
+      const permisos = user.permisos || [];
+      const actionLower = action.toLowerCase();
+
+      return permisos.some((permiso) => {
+        const parts = permiso.toLowerCase().split('.');
+        const lastPart = parts[parts.length - 1];
+
+        if (actionLower === 'leer' || actionLower === 'read') {
+          return lastPart === 'leer' || lastPart === 'read';
+        }
+
+        return lastPart === actionLower;
+      });
     }
 
     // Equipo solo puede leer (no crear, editar, eliminar)

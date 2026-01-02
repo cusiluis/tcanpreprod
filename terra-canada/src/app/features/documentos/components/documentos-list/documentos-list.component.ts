@@ -50,6 +50,7 @@ export class DocumentosListComponent implements OnInit, OnChanges {
   errorMessage: string | null = null;
   isAdmin: boolean;
   private isEquipo: boolean;
+  canView: boolean;
   canDelete: boolean;
   private currentUserNombre: string | null;
 
@@ -81,7 +82,10 @@ export class DocumentosListComponent implements OnInit, OnChanges {
   ) {
     this.isAdmin = this.authService.isAdmin();
     this.isEquipo = this.authService.isEquipo();
-    this.canDelete = this.authService.hasPermission('eliminar_documento_usuario');
+    this.canView =
+      this.isAdmin || this.authService.hasPermission('ver_documentos_usuario');
+    this.canDelete =
+      this.isAdmin || this.authService.hasPermission('eliminar_documento_usuario');
     const currentUser = this.authService.getCurrentUser();
     const nombre =
       (currentUser?.nombre_completo || currentUser?.username || '').toLowerCase();
@@ -290,8 +294,8 @@ export class DocumentosListComponent implements OnInit, OnChanges {
   }
 
   viewDocument(documento: Documento): void {
-    // Solo admin puede ver documentos en el visor
-    if (!this.isAdmin) {
+    // Solo usuarios con permiso pueden ver documentos en el visor
+    if (!this.canView) {
       return;
     }
 
@@ -299,8 +303,8 @@ export class DocumentosListComponent implements OnInit, OnChanges {
   }
 
   downloadDocument(documento: Documento): void {
-    // Solo admin puede descargar documentos
-    if (!this.isAdmin) {
+    // Solo usuarios con permiso pueden descargar documentos
+    if (!this.canView) {
       return;
     }
 
@@ -404,8 +408,8 @@ export class DocumentosListComponent implements OnInit, OnChanges {
   }
 
   deleteDocument(documento: Documento): void {
-    // Solo admin con permiso explícito puede eliminar
-    if (!this.canDelete || !this.isAdmin) {
+    // Solo usuarios con permiso explícito pueden eliminar
+    if (!this.canDelete) {
       return;
     }
 

@@ -9,7 +9,7 @@
         Administre los usuarios del sistema: creación, edición y activación/desactivación.
       </p>
     </div>
-    <button type="button" class="btn-primary" (click)="abrirModalCrear()">
+    <button *ngIf="canManageUsers" type="button" class="btn-primary" (click)="abrirModalCrear()">
       <i class="pi pi-user-plus"></i>
       <span>Nuevo usuario</span>
     </button>
@@ -41,7 +41,7 @@
             <th>Correo</th>
             <th>Teléfono</th>
             <th>Rol</th>
-            <th>Acciones</th>
+            <th *ngIf="canManageUsers">Acciones</th>
           </tr>
         </thead>
         <tbody>
@@ -51,7 +51,7 @@
             <td>{{ u.correo }}</td>
             <td>{{ u.telefono || '-' }}</td>
             <td>{{ u.rolNombre || '-' }}</td>
-            <td class="cell-actions">
+            <td *ngIf="canManageUsers" class="cell-actions">
               <div class="action-buttons">
                 <button
                   type="button"
@@ -81,7 +81,7 @@
             </td>
           </tr>
           <tr *ngIf="filteredUsuarios.length === 0">
-            <td colspan="6" class="empty-message">No hay usuarios para mostrar.</td>
+            <td [attr.colspan]="canManageUsers ? 6 : 5" class="empty-message">No hay usuarios para mostrar.</td>
           </tr>
         </tbody>
       </table>

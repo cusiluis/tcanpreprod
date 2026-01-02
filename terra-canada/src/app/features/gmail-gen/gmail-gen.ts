@@ -23,6 +23,21 @@ interface EmailInfoViewModel {
   totalPagos: number;
   totalMonto: number;
   fechaEnvioTexto: string;
+  pagosDetallados?: {
+    id_pago: number;
+    cliente: string;
+    monto: number;
+    codigo: string;
+    fecha_creacion?: string;
+    tipo_pago?: string;
+    medio_pago?: {
+      titular?: string;
+      numero?: string;
+      tipo_tarjeta?: string;
+      cuenta?: string;
+      moneda?: string;
+    };
+  }[];
 }
 
 @Component({
@@ -40,10 +55,8 @@ interface EmailInfoViewModel {
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class GmailGenComponent implements OnInit {
-  filter: 'hoy' | 'todos' | 'pasados' = 'hoy';
+  filter: 'todos' | 'pasados' = 'todos';
 
-  /** Pagos pendientes SOLO del día (vista "Hoy"). */
-  pendingGroups: GmailEmailGroup[] = [];
   /** Pagos pendientes generales (sin filtro por fecha) para la vista "Todos". */
   generalPendingGroups: GmailEmailGroup[] = [];
   sentGroupsToday: GmailEmailGroup[] = [];
@@ -51,11 +64,12 @@ export class GmailGenComponent implements OnInit {
 
   get enviosHoy(): GmailEnvioHistorial[] {
     const today = new Date();
-    const todayKey = `${today.getFullYear()}-${String(
-      today.getMonth() + 1
-    ).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const day = String(today.getDate()).padStart(2, '0');
+    const todayKey = `${year}-${month}-${day}`;
 
-    return this.historialEnvios.filter((envio) => {
+    return this.historialEnvios.filter((envio: GmailEnvioHistorial) => {
       if (!envio.fecha_resumen) {
         return false;
       }
@@ -65,34 +79,18 @@ export class GmailGenComponent implements OnInit {
         return false;
       }
 
-      const key = `${fecha.getFullYear()}-${String(
-        fecha.getMonth() + 1
-      ).padStart(2, '0')}-${String(fecha.getDate()).padStart(2, '0')}`;
+      const key = `${fecha.getFullYear()}-${String(fecha.getMonth() + 1).padStart(2, '0')}-${String(
+        fecha.getDate()
+      ).padStart(2, '0')}`;
       return key === todayKey;
     });
   }
 
   get enviosPasados(): GmailEnvioHistorial[] {
-    const today = new Date();
-    const todayKey = `${today.getFullYear()}-${String(
-      today.getMonth() + 1
-    ).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
-
-    return this.historialEnvios.filter((envio) => {
-      if (!envio.fecha_resumen) {
-        return false;
-      }
-
-      const fecha = new Date(envio.fecha_resumen);
-      if (Number.isNaN(fecha.getTime())) {
-        return false;
-      }
-
-      const key = `${fecha.getFullYear()}-${String(
-        fecha.getMonth() + 1
-      ).padStart(2, '0')}-${String(fecha.getDate()).padStart(2, '0')}`;
-      return key < todayKey;
-    });
+    // Ahora "Pasados" debe mostrar todo el historial de correos enviados
+    // sin filtrar por fecha. La separación de "hoy" se maneja en la vista
+    // de la pestaña "Todos" mediante sentGroupsToday.
+    return this.historialEnvios;
   }
 
   showComposeModal = false;
@@ -123,55 +121,14 @@ export class GmailGenComponent implements OnInit {
 
   ngOnInit(): void {
     this.cargarResumen();
-    this.cargarPendientesGenerales();
-    this.cargarEnviadosHoy();
-    this.cargarHistorial();
   }
 
   get filteredGroups(): GmailEmailGroup[] {
-    if (this.filter === 'hoy') {
-      return this.pendingGroups;
-    }
-
     if (this.filter === 'todos') {
       return this.generalPendingGroups;
     }
 
     return [];
-  }
-
-  cargarResumen(fecha?: string): void {
-    this.isLoading = true;
-
-    this.gmailGenService.getResumenPagosDia(fecha).subscribe({
-      next: (response) => {
-        this.isLoading = false;
-
-        console.log('[Gmail-GEN] Resumen API response:', response);
-
-        if (response.success && response.data) {
-          this.pendingGroups = [...response.data];
-          console.log('[Gmail-GEN] groups cargados (pendientes):', this.pendingGroups);
-        } else {
-          console.error(
-            'Error obteniendo resumen de pagos para Gmail-GEN',
-            response
-          );
-          this.pendingGroups = [];
-        }
-
-        this.cdr.markForCheck();
-      },
-      error: (error) => {
-        this.isLoading = false;
-        console.error(
-          'Error HTTP obteniendo resumen de pagos para Gmail-GEN',
-          error
-        );
-        this.pendingGroups = [];
-        this.cdr.markForCheck();
-      }
-    });
   }
 
   cargarPendientesGenerales(): void {
@@ -196,6 +153,12 @@ export class GmailGenComponent implements OnInit {
         this.cdr.markForCheck();
       }
     });
+  }
+
+  private cargarResumen(): void {
+    this.cargarPendientesGenerales();
+    this.cargarEnviadosHoy();
+    this.cargarHistorial();
   }
 
   cargarEnviadosHoy(fecha?: string): void {
@@ -243,7 +206,7 @@ export class GmailGenComponent implements OnInit {
     });
   }
 
-  setFilter(filter: 'hoy' | 'todos' | 'pasados'): void {
+  setFilter(filter: 'todos' | 'pasados'): void {
     this.filter = filter;
     this.cdr.markForCheck();
   }
@@ -266,11 +229,13 @@ export class GmailGenComponent implements OnInit {
     }
 
     const proveedorId = this.selectedGroup.id;
+    const fechaResumen = this.selectedGroup.fechaResumen;
     this.isSending = true;
 
     this.gmailGenService
       .enviarCorreoProveedor({
         proveedorId,
+        fecha: fechaResumen,
         asunto: this.composeForm.asunto,
         mensaje: this.composeForm.mensaje
       })
@@ -300,9 +265,6 @@ export class GmailGenComponent implements OnInit {
           this.showComposeModal = false;
           this.selectedGroup = null;
           this.cargarResumen();
-          this.cargarPendientesGenerales();
-          this.cargarEnviadosHoy();
-          this.cargarHistorial();
 
           this.successToastMessage = 'Correo enviado correctamente';
           this.showSuccessToast = true;
@@ -353,15 +315,33 @@ export class GmailGenComponent implements OnInit {
 
     const proveedorNombre = envio.proveedor?.nombre || 'Proveedor';
     const correo =
+      envio.proveedor?.correo ||
       (envio as any).correo ||
       (envio as any).correo_destino ||
       (envio as any).correo_contacto ||
       '';
 
     const mensaje =
+      envio.cuerpo_correo ||
       (envio as any).mensaje ||
       (envio as any).cuerpo_correo ||
       '';
+
+    const pagosDetallados = ((envio as any).pagos || []) as {
+      id_pago: number;
+      cliente: string;
+      monto: number;
+      codigo: string;
+      fecha_creacion?: string;
+      tipo_pago?: string;
+      medio_pago?: {
+        titular?: string;
+        numero?: string;
+        tipo_tarjeta?: string;
+        cuenta?: string;
+        moneda?: string;
+      };
+    }[];
 
     this.selectedEmailInfo = {
       proveedorNombre,
@@ -370,7 +350,8 @@ export class GmailGenComponent implements OnInit {
       mensaje,
       totalPagos: envio.cantidad_pagos,
       totalMonto: envio.monto_total,
-      fechaEnvioTexto: fechaEnvio.toLocaleString()
+      fechaEnvioTexto: fechaEnvio.toLocaleString(),
+      pagosDetallados
     };
 
     this.showDetailsModal = true;
@@ -395,4 +376,3 @@ export class GmailGenComponent implements OnInit {
     this.showDetailsModal = false;
   }
 }
-

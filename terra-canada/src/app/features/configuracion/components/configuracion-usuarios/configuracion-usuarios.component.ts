@@ -6,6 +6,7 @@ import { UsuarioService, Usuario, CreateUsuarioPayload, UpdateUsuarioPayload } f
 import { Subject } from 'rxjs';
 import { takeUntil, finalize } from 'rxjs/operators';
 import { NotificationService } from '../../../../core/services/notification.service';
+import { AuthService } from '../../../../core/services/auth.service';
 
 interface UsuarioView {
   id: number;
@@ -64,6 +65,8 @@ export class ConfiguracionUsuariosComponent implements OnInit, OnDestroy {
     { id: 2, nombre: 'Equipo' }
   ];
 
+  canManageUsers = false;
+
   private destroy$ = new Subject<void>();
 
   showPassword = false;
@@ -86,10 +89,12 @@ export class ConfiguracionUsuariosComponent implements OnInit, OnDestroy {
   constructor(
     private usuarioService: UsuarioService,
     private cdr: ChangeDetectorRef,
-    private notificationService: NotificationService
+    private notificationService: NotificationService,
+    private authService: AuthService
   ) {}
 
   ngOnInit(): void {
+    this.canManageUsers = this.authService.isAdmin();
     this.configurarSuscripcionUsuarios();
     this.usuarioService.cargarUsuarios(1, 100);
   }

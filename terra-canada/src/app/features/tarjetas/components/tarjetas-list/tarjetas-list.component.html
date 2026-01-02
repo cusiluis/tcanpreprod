@@ -3,7 +3,7 @@
   <!-- Grid de Tarjetas -->
   <div class="tarjetas-grid">
     <!-- Botón para Añadir Nueva Tarjeta (Solo Admin) -->
-    <div *ngIf="isAdmin" class="tarjeta-add-button" (click)="onAnadirTarjeta()">
+    <div *ngIf="canCreate" class="tarjeta-add-button" (click)="onAnadirTarjeta()">
       <div class="add-button-content">
         <i class="pi pi-plus"></i>
         <p>{{ 'anadirNuevaTarjeta' | translate }}</p>
@@ -79,7 +79,7 @@
         <div class="tarjeta-controls">
           <!-- Botón Cambiar Estado (Solo Admin) -->
           <button 
-            *ngIf="isAdmin"
+            *ngIf="canEdit"
             class="btn-cambiar-estado"
             [ngClass]="'estado-' + tarjeta.estado.nombre.toLowerCase()"
             (click)="onAbrirModalCambiarEstado(tarjeta)"
@@ -91,7 +91,7 @@
 
           <!-- Botón Realizar Cargo (Solo Admin) -->
           <button 
-            *ngIf="isAdmin"
+            *ngIf="canEdit"
             class="btn-realizar-cargo"
             (click)="onAnadirSaldo(tarjeta)"
             [disabled]="tarjeta.estado.nombre.toLowerCase() !== 'activo'"
@@ -103,7 +103,7 @@
 
           <!-- Botón Eliminar Tarjeta (Solo Admin) -->
           <button 
-            *ngIf="isAdmin"
+            *ngIf="canDelete"
             class="btn-eliminar-tarjeta"
             (click)="onEliminarTarjeta(tarjeta)"
             title="Eliminar tarjeta"

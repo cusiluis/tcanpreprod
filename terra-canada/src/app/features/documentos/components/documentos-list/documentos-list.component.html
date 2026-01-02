@@ -45,7 +45,7 @@
 
           <div class="documento-actions">
             <button
-              *ngIf="isAdmin"
+              *ngIf="canView"
               class="btn-action btn-view"
               (click)="viewDocument(documento)"
               [title]="'ver' | translate"
@@ -53,7 +53,7 @@
               <i class="pi pi-eye"></i>
             </button>
             <button
-              *ngIf="isAdmin"
+              *ngIf="canView"
               class="btn-action btn-download"
               (click)="downloadDocument(documento)"
               [title]="'descargar' | translate"
@@ -61,7 +61,7 @@
               <i class="pi pi-download"></i>
             </button>
             <button
-              *ngIf="isAdmin && canDelete"
+              *ngIf="canDelete"
               class="btn-action btn-delete"
               (click)="deleteDocument(documento)"
               [title]="'eliminar' | translate"

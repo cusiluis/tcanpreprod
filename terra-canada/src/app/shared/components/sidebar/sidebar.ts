@@ -35,10 +35,11 @@ export class SidebarComponent implements OnInit {
         .map(item => {
           if (item.id === 'configuracion' && item.children?.length) {
             const isAdmin = this.authService.isAdmin();
+            const isSupervisor = this.authService.hasRole('supervisor');
             return {
               ...item,
               children: item.children.filter(child =>
-                child.id !== 'configuracion-usuarios' || isAdmin
+                child.id !== 'configuracion-usuarios' || isAdmin || isSupervisor
               )
             };
           }
