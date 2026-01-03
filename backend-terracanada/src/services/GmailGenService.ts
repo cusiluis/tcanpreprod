@@ -31,12 +31,24 @@ export interface GmailEmailGroup {
   ultimoEnvio?: GmailUltimoEnvio;
 }
 
+interface ResumenFuncionResponse {
+  status: number;
+  message: string;
+  data: any;
+}
+
+interface RegistrarEnvioResponse {
+  status: number;
+  message: string;
+  data: any;
+}
+
 /**
  * Servicio de integración para el módulo Gmail-GEN.
  * 
- * Corrección: Se eliminó la dependencia estricta de funciones SQL que filtraban por 'esta_verificado'.
- * Ahora se realizan consultas directas para obtener pagos en estado 'PAGADO' y 'ACTIVO'
- * independientemente de su verificación, permitiendo enviar correos de pagos pendientes de verificación.
+ * CORRECCIONES APLICADAS:
+ * - getResumenPagosDia y enviarCorreoProveedor ahora ignoran el filtro 'esta_verificado'.
+ * - Se restauraron todos los métodos (getHistorialEnvios, etc.) para evitar errores de compilación.
  */
 export class GmailGenService {
 
@@ -139,7 +151,7 @@ export class GmailGenService {
           proveedorNombre: nombreProveedor,
           correoContacto: detalles.correo,
           color: index % 2 === 0 ? 'teal' : 'brown',
-          estado: 'pendiente', // Si aparece aquí, es porque está pendiente de enviar
+          estado: 'pendiente',
           pagos: detalles.pagos,
           totalPagos: detalles.resumen.cantidad_pagos,
           totalMonto: detalles.resumen.monto_total
@@ -157,6 +169,275 @@ export class GmailGenService {
       return {
         success: false,
         error: 'Error obteniendo resumen de pagos (Direct Query)',
+        statusCode: 500
+      };
+    }
+  }
+
+  /**
+   * Obtiene TODOS los pagos pendientes de envío para Gmail-GEN,
+   * sin filtrar por fecha de creación.
+   * Mantiene lógica original pero es un punto a vigilar para la corrección de no verificados.
+   */
+  async getCorreosPendientesGeneral(
+    usuarioId: number
+  ): Promise<ServiceResponse<GmailEmailGroup[]>> {
+    try {
+      // NOTA: Esta función usa la lógica original. Si necesitas ver NO VERIFICADOS aquí también,
+      // deberíamos cambiarla por una query directa como en getResumenPagosDia.
+      const resumenResult = await db.query(
+        'SELECT public.correos_pendientes_general_get(:usuario_id) as result',
+        {
+          replacements: {
+            usuario_id: usuarioId
+          },
+          type: QueryTypes.SELECT
+        }
+      );
+
+      const rawResumen = (resumenResult[0] as any).result as any;
+      const parsedResumen: any =
+        typeof rawResumen === 'string' ? JSON.parse(rawResumen) : rawResumen;
+
+      const resumenJson: ResumenFuncionResponse = {
+        status: parsedResumen?.status ?? parsedResumen?.estado ?? 500,
+        message: parsedResumen?.message ?? parsedResumen?.mensaje ?? '',
+        data: parsedResumen?.data ?? parsedResumen?.datos ?? {}
+      };
+
+      if (
+        !parsedResumen ||
+        (typeof resumenJson.status === 'number' && resumenJson.status >= 400)
+      ) {
+        return {
+          success: false,
+          error:
+            resumenJson.message ||
+            'Error obteniendo correos pendientes generales para Gmail-GEN',
+          statusCode:
+            typeof resumenJson.status === 'number' ? resumenJson.status : 500
+        };
+      }
+
+      const data = resumenJson.data || {};
+
+      const groups: GmailEmailGroup[] = [];
+      const proveedores = Object.entries(data) as [string, any][];
+
+      proveedores.forEach(([nombreProveedor, detalles], index) => {
+        if (!detalles) {
+          return;
+        }
+
+        const proveedorId = detalles.id_proveedor as number;
+        const correoProveedor = detalles.correo as string;
+        const pagosOrigen = (detalles.pagos || []) as any[];
+        const resumen = detalles.resumen || {};
+
+        const pagos: GmailPaymentRecord[] = pagosOrigen.map((pago: any) => ({
+          id: pago.id_pago,
+          cliente: pago.cliente,
+          monto: Number(pago.monto),
+          codigo: pago.codigo
+        }));
+
+        const totalPagos =
+          typeof resumen.cantidad_pagos === 'number'
+            ? resumen.cantidad_pagos
+            : pagos.length;
+        const totalMonto =
+          typeof resumen.monto_total === 'number'
+            ? Number(resumen.monto_total)
+            : pagos.reduce((acc, p) => acc + (p.monto || 0), 0);
+
+        groups.push({
+          id: proveedorId,
+          proveedorNombre: nombreProveedor,
+          correoContacto: correoProveedor,
+          color: index % 2 === 0 ? 'teal' : 'brown',
+          estado: 'pendiente',
+          pagos,
+          totalPagos,
+          totalMonto
+        } as GmailEmailGroup);
+      });
+
+      return {
+        success: true,
+        data: groups,
+        statusCode: 200
+      };
+    } catch (error) {
+      console.error(
+        'GmailGenService.getCorreosPendientesGeneral - Error:',
+        error
+      );
+      return {
+        success: false,
+        error:
+          error instanceof Error
+            ? error.message
+            : 'Error obteniendo correos pendientes generales para Gmail-GEN',
+        statusCode: 500
+      };
+    }
+  }
+
+  async getResumenEnviosFecha(
+    usuarioId: number,
+    fecha?: string
+  ): Promise<ServiceResponse<GmailEmailGroup[]>> {
+    try {
+      const today = new Date();
+      const fechaLocal = today.toLocaleDateString('en-CA');
+      const fechaObjetivo = fecha || fechaLocal;
+
+      const resumenResult = await db.query(
+        'SELECT public.resumen_envios_fecha_get(:usuario_id, :fecha) as result',
+        {
+          replacements: {
+            usuario_id: usuarioId,
+            fecha: fechaObjetivo
+          },
+          type: QueryTypes.SELECT
+        }
+      );
+
+      const rawResumen = (resumenResult[0] as any).result as any;
+      const parsedResumen: any =
+        typeof rawResumen === 'string' ? JSON.parse(rawResumen) : rawResumen;
+
+      const resumenJson: ResumenFuncionResponse = {
+        status: parsedResumen?.status ?? parsedResumen?.estado ?? 500,
+        message: parsedResumen?.message ?? parsedResumen?.mensaje ?? '',
+        data: parsedResumen?.data ?? parsedResumen?.datos ?? {}
+      };
+
+      if (!parsedResumen || (typeof resumenJson.status === 'number' && resumenJson.status >= 400)) {
+        return {
+          success: false,
+          error:
+            resumenJson.message ||
+            'Error obteniendo resumen de envíos para Gmail-GEN',
+          statusCode:
+            typeof resumenJson.status === 'number' ? resumenJson.status : 500
+        };
+      }
+
+      const data = resumenJson.data || {};
+      const groups: GmailEmailGroup[] = [];
+      const proveedores = Object.entries(data) as [string, any][];
+
+      proveedores.forEach(([nombreProveedor, detalles], index) => {
+        if (!detalles) {
+          return;
+        }
+
+        const proveedorId = detalles.id_proveedor as number;
+        const correoProveedor = detalles.correo as string;
+        const pagosOrigen = (detalles.pagos || []) as any[];
+        const resumen = detalles.resumen || {};
+
+        const pagos: GmailPaymentRecord[] = pagosOrigen.map((pago: any) => ({
+          id: pago.id_pago,
+          cliente: pago.cliente,
+          monto: Number(pago.monto),
+          codigo: pago.codigo
+        }));
+
+        const totalPagos =
+          typeof resumen.cantidad_pagos === 'number'
+            ? resumen.cantidad_pagos
+            : pagos.length;
+        const totalMonto =
+          typeof resumen.monto_total === 'number'
+            ? Number(resumen.monto_total)
+            : pagos.reduce((acc, p) => acc + (p.monto || 0), 0);
+
+        groups.push({
+          id: proveedorId,
+          proveedorNombre: nombreProveedor,
+          correoContacto: correoProveedor,
+          color: index % 2 === 0 ? 'teal' : 'brown',
+          estado: 'enviado',
+          pagos,
+          totalPagos,
+          totalMonto
+        } as GmailEmailGroup);
+      });
+
+      return {
+        success: true,
+        data: groups,
+        statusCode: 200
+      };
+    } catch (error) {
+      console.error('GmailGenService.getResumenEnviosFecha - Error:', error);
+      return {
+        success: false,
+        error:
+          error instanceof Error
+            ? error.message
+            : 'Error obteniendo resumen de envíos para Gmail-GEN',
+        statusCode: 500
+      };
+    }
+  }
+
+  async getHistorialEnvios(
+    usuarioId: number,
+    limit: number = 50,
+    offset: number = 0
+  ): Promise<ServiceResponse<any[]>> {
+    try {
+      const result = await db.query(
+        'SELECT public.historial_envios_get(:usuario_id, :limit, :offset) as result',
+        {
+          replacements: {
+            usuario_id: usuarioId,
+            limit,
+            offset
+          },
+          type: QueryTypes.SELECT
+        }
+      );
+
+      const raw = (result[0] as any).result as any;
+      const parsed: any =
+        typeof raw === 'string' ? JSON.parse(raw) : raw;
+
+      const histJson = {
+        status: parsed?.status ?? parsed?.estado ?? 500,
+        message: parsed?.message ?? parsed?.mensaje ?? '',
+        data: parsed?.data ?? parsed?.datos ?? []
+      };
+
+      if (!parsed || (typeof histJson.status === 'number' && histJson.status >= 400)) {
+        return {
+          success: false,
+          error:
+            histJson.message ||
+            'Error obteniendo historial de envíos para Gmail-GEN',
+          statusCode:
+            typeof histJson.status === 'number' ? histJson.status : 500
+        };
+      }
+
+      const items = (histJson.data || []) as any[];
+
+      return {
+        success: true,
+        data: items,
+        statusCode: 200
+      };
+    } catch (error) {
+      console.error('GmailGenService.getHistorialEnvios - Error:', error);
+      return {
+        success: false,
+        error:
+          error instanceof Error
+            ? error.message
+            : 'Error obteniendo historial de envíos para Gmail-GEN',
         statusCode: 500
       };
     }
@@ -289,22 +570,28 @@ export class GmailGenService {
 
       const rawRegistrar = (registrarResult[0] as any).result as any;
       const parsedRegistrar: any = typeof rawRegistrar === 'string' ? JSON.parse(rawRegistrar) : rawRegistrar;
-
-      // Nota: La función registrar_envio_correo_con_detalles debería insertar en detalle_envio_correo,
-      // lo que hará que estos pagos dejen de aparecer en "pendientes" en la próxima consulta.
       
-      if (!parsedRegistrar || parsedRegistrar.status >= 400) {
+      const registrarJson: RegistrarEnvioResponse = {
+        status: parsedRegistrar?.status ?? parsedRegistrar?.estado ?? 500,
+        message: parsedRegistrar?.message ?? parsedRegistrar?.mensaje ?? '',
+        data: parsedRegistrar?.data ?? parsedRegistrar?.datos ?? null
+      };
+
+      if (!parsedRegistrar || (typeof registrarJson.status === 'number' && registrarJson.status >= 400)) {
         return {
           success: false,
-          error: parsedRegistrar?.message || 'Error registrando el envío de correo',
-          statusCode: parsedRegistrar?.status || 500
+          error:
+            registrarJson.message ||
+            'Error registrando el envío de correo en la auditoría',
+          statusCode:
+            typeof registrarJson.status === 'number' ? registrarJson.status : 500
         };
       }
 
       return {
         success: true,
         data: {
-          envio: parsedRegistrar.data,
+          envio: registrarJson.data,
           infoCorreo: infoCorreoExtendido,
           infoPagos: pagos,
           webhook: webhookResponseData
@@ -315,139 +602,12 @@ export class GmailGenService {
       console.error('GmailGenService.enviarCorreoProveedor - Error:', error);
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Error enviando correo de Gmail-GEN',
+        error:
+          error instanceof Error
+            ? error.message
+            : 'Error enviando correo de Gmail-GEN',
         statusCode: 500
       };
-    }
-  }
-
-  // El resto de métodos (getCorreosPendientesGeneral, etc.) podrían requerir ajustes similares
-  // si se desea el mismo comportamiento. He dejado los métodos originales abajo
-  // para no romper otras funcionalidades, pero te recomiendo aplicar la misma lógica
-  // si necesitas listar todos los pendientes general.
-
-  async getCorreosPendientesGeneral(
-    usuarioId: number
-  ): Promise<ServiceResponse<GmailEmailGroup[]>> {
-    try {
-      // NOTA: Si aquí también quieres ver los no verificados, deberías cambiar la lógica
-      // similar a como hicimos en getResumenPagosDia. Por ahora dejo la original.
-      const resumenResult = await db.query(
-        'SELECT public.correos_pendientes_general_get(:usuario_id) as result',
-        {
-          replacements: { usuario_id: usuarioId },
-          type: QueryTypes.SELECT
-        }
-      );
-
-      const rawResumen = (resumenResult[0] as any).result as any;
-      const parsedResumen: any =
-        typeof rawResumen === 'string' ? JSON.parse(rawResumen) : rawResumen;
-
-      const resumenJson: any = {
-        status: parsedResumen?.status ?? parsedResumen?.estado ?? 500,
-        message: parsedResumen?.message ?? parsedResumen?.mensaje ?? '',
-        data: parsedResumen?.data ?? parsedResumen?.datos ?? {}
-      };
-
-      if (!parsedResumen || resumenJson.status >= 400) {
-        return { success: false, error: resumenJson.message, statusCode: resumenJson.status };
-      }
-
-      const data = resumenJson.data || {};
-      const groups: GmailEmailGroup[] = [];
-      const proveedores = Object.entries(data) as [string, any][];
-
-      proveedores.forEach(([nombreProveedor, detalles], index) => {
-        if (!detalles) return;
-        const pagosOrigen = (detalles.pagos || []) as any[];
-        const pagos: GmailPaymentRecord[] = pagosOrigen.map((pago: any) => ({
-          id: pago.id_pago,
-          cliente: pago.cliente,
-          monto: Number(pago.monto),
-          codigo: pago.codigo
-        }));
-        
-        groups.push({
-          id: detalles.id_proveedor,
-          proveedorNombre: nombreProveedor,
-          correoContacto: detalles.correo,
-          color: index % 2 === 0 ? 'teal' : 'brown',
-          estado: 'pendiente',
-          pagos,
-          totalPagos: pagos.length,
-          totalMonto: pagos.reduce((acc, p) => acc + (p.monto || 0), 0)
-        } as GmailEmailGroup);
-      });
-
-      return { success: true, data: groups, statusCode: 200 };
-    } catch (error) {
-      console.error('GmailGenService.getCorreosPendientesGeneral - Error:', error);
-      return { success: false, error: 'Error general', statusCode: 500 };
-    }
-  }
-
-  async getResumenEnviosFecha(
-    usuarioId: number,
-    fecha?: string
-  ): Promise<ServiceResponse<GmailEmailGroup[]>> {
-    // Manteniendo lógica original para historial de enviados
-    try {
-      const today = new Date();
-      const fechaLocal = today.toLocaleDateString('en-CA');
-      const fechaObjetivo = fecha || fechaLocal;
-
-      const resumenResult = await db.query(
-        'SELECT public.resumen_envios_fecha_get(:usuario_id, :fecha) as result',
-        {
-          replacements: { usuario_id: usuarioId, fecha: fechaObjetivo },
-          type: QueryTypes.SELECT
-        }
-      );
-
-      const rawResumen = (resumenResult[0] as any).result as any;
-      const parsedResumen: any = typeof rawResumen === 'string' ? JSON.parse(rawResumen) : rawResumen;
-
-      const resumenJson: any = {
-        status: parsedResumen?.status ?? parsedResumen?.estado ?? 500,
-        message: parsedResumen?.message ?? parsedResumen?.mensaje ?? '',
-        data: parsedResumen?.data ?? parsedResumen?.datos ?? {}
-      };
-
-      if (!parsedResumen || resumenJson.status >= 400) {
-        return { success: false, error: resumenJson.message, statusCode: resumenJson.status };
-      }
-
-      const data = resumenJson.data || {};
-      const groups: GmailEmailGroup[] = [];
-      const proveedores = Object.entries(data) as [string, any][];
-
-      proveedores.forEach(([nombreProveedor, detalles], index) => {
-        if (!detalles) return;
-        const pagosOrigen = (detalles.pagos || []) as any[];
-        const pagos: GmailPaymentRecord[] = pagosOrigen.map((pago: any) => ({
-          id: pago.id_pago,
-          cliente: pago.cliente,
-          monto: Number(pago.monto),
-          codigo: pago.codigo
-        }));
-
-        groups.push({
-          id: detalles.id_proveedor,
-          proveedorNombre: nombreProveedor,
-          correoContacto: detalles.correo,
-          color: index % 2 === 0 ? 'teal' : 'brown',
-          estado: 'enviado',
-          pagos,
-          totalPagos: pagos.length,
-          totalMonto: pagos.reduce((acc, p) => acc + (p.monto || 0), 0)
-        } as GmailEmailGroup);
-      });
-
-      return { success: true, data: groups, statusCode: 200 };
-    } catch (error) {
-      console.error('GmailGenService.getResumenEnviosFecha - Error:', error);
-      return { success: false, error: 'Error obteniendo resumen de envíos', statusCode: 500 };
     }
   }
 }
