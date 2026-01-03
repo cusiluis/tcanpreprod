@@ -117,6 +117,7 @@ export class GmailGenService {
 
     if (input.fecha) {
       body.fecha = input.fecha;
+      body.fecha_resumen = input.fecha;
     }
 
     if (input.asunto) {
