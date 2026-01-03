@@ -228,12 +228,28 @@ export class GmailGenComponent implements OnInit {
       return;
     }
 
-  const proveedorId = this.selectedGroup.id;
-   const fechaResumen =
+    const proveedorId = this.selectedGroup.id;
+    const fechaResumenRaw =
       this.selectedGroup.fechaResumen ||
       (this.selectedGroup as any).fecha_resumen ||
       (this.selectedGroup as any).fecha ||
-      (this.selectedGroup as any).fechaResumen;
+      (this.selectedGroup as any).fechaResumen ||
+      this.selectedGroup.pagos?.[0]?.fecha_creacion ||
+      this.selectedGroup.pagos?.[0]?.fecha ||
+      (this.selectedGroup.pagos?.[0] as any)?.fechaCreacion ||
+      (this.selectedGroup.pagos?.[0] as any)?.fecha;
+    const fechaResumen = this.normalizeFecha(fechaResumenRaw);
+
+    if (!fechaResumen) {
+      this.errorToastMessage = 'No se pudo determinar la fecha del resumen de pagos para este proveedor';
+      this.showErrorToast = true;
+      this.cdr.markForCheck();
+      setTimeout(() => {
+        this.showErrorToast = false;
+        this.cdr.markForCheck();
+      }, 3000);
+      return;
+    }
     this.isSending = true;
 
     this.gmailGenService
@@ -284,7 +300,12 @@ export class GmailGenComponent implements OnInit {
             'Error HTTP enviando correo de confirmación a proveedor',
             error
           );
-          this.errorToastMessage = 'Error enviando correo de confirmación a proveedor';
+          const serverMessage =
+            (error?.error as any)?.error?.message ||
+            (error?.error as any)?.message ||
+            (error as any)?.message;
+          this.errorToastMessage =
+            serverMessage || 'Error enviando correo de confirmación a proveedor';
           this.showErrorToast = true;
           this.cdr.markForCheck();
           setTimeout(() => {
@@ -293,6 +314,30 @@ export class GmailGenComponent implements OnInit {
           }, 3000);
         }
       });
+  }
+
+  private normalizeFecha(value?: string | null): string {
+    if (!value) {
+      return '';
+    }
+
+    // Si viene con tiempo (ej. 2026-01-03T03:19:55.161Z), dejamos solo la parte de la fecha
+    if (value.includes('T')) {
+      const [datePart] = value.split('T');
+      return datePart;
+    }
+
+    // Si es parseable, devolver en formato YYYY-MM-DD
+    const parsed = new Date(value);
+    if (!Number.isNaN(parsed.getTime())) {
+      const year = parsed.getFullYear();
+      const month = String(parsed.getMonth() + 1).padStart(2, '0');
+      const day = String(parsed.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    }
+
+    // Último recurso: devolver la cadena tal cual
+    return value;
   }
 
   openEmailInfo(group: GmailEmailGroup): void {
@@ -380,4 +425,3 @@ export class GmailGenComponent implements OnInit {
     this.showDetailsModal = false;
   }
 }
-
