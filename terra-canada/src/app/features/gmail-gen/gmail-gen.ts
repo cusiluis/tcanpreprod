@@ -228,8 +228,12 @@ export class GmailGenComponent implements OnInit {
       return;
     }
 
-    const proveedorId = this.selectedGroup.id;
-    const fechaResumen = this.selectedGroup.fechaResumen;
+  const proveedorId = this.selectedGroup.id;
+   const fechaResumen =
+      this.selectedGroup.fechaResumen ||
+      (this.selectedGroup as any).fecha_resumen ||
+      (this.selectedGroup as any).fecha ||
+      (this.selectedGroup as any).fechaResumen;
     this.isSending = true;
 
     this.gmailGenService
@@ -376,3 +380,4 @@ export class GmailGenComponent implements OnInit {
     this.showDetailsModal = false;
   }
 }
+
