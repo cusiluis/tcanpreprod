@@ -229,15 +229,10 @@ export class GmailGenComponent implements OnInit {
     }
 
     const proveedorId = this.selectedGroup.id;
+    const firstPago: any = this.selectedGroup.pagos?.[0] as any;
     const fechaResumenRaw =
-      this.selectedGroup.fechaResumen ||
-      (this.selectedGroup as any).fecha_resumen ||
-      (this.selectedGroup as any).fecha ||
-      (this.selectedGroup as any).fechaResumen ||
-      this.selectedGroup.pagos?.[0]?.fecha_creacion ||
-      this.selectedGroup.pagos?.[0]?.fecha ||
-      (this.selectedGroup.pagos?.[0] as any)?.fechaCreacion ||
-      (this.selectedGroup.pagos?.[0] as any)?.fecha;
+      firstPago?.fecha_creacion ||
+      firstPago?.fecha;
     const fechaResumen = this.normalizeFecha(fechaResumenRaw);
 
     if (!fechaResumen) {
