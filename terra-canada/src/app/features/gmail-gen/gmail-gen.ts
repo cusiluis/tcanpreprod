@@ -231,10 +231,16 @@ export class GmailGenComponent implements OnInit {
     const proveedorId = this.selectedGroup.id;
     const firstPago: any = this.selectedGroup.pagos?.[0] as any;
     const fechaResumenRaw =
+      this.selectedGroup.fechaResumen ||
+      (this.selectedGroup as any).fecha_resumen ||
+      (this.selectedGroup as any).fecha ||
+      (this.selectedGroup as any).fechaResumen ||
       firstPago?.fecha_creacion ||
-      firstPago?.fecha;
-    const fechaResumen = this.normalizeFecha(fechaResumenRaw);
+      firstPago?.fecha ||
+      firstPago?.fecha_resumen;
+    const fechaResumen = this.normalizeFecha(fechaResumenRaw) || this.getTodayDate();
 
+    // Si aun así no se obtiene fecha, abortar
     if (!fechaResumen) {
       this.errorToastMessage = 'No se pudo determinar la fecha del resumen de pagos para este proveedor';
       this.showErrorToast = true;
@@ -333,6 +339,14 @@ export class GmailGenComponent implements OnInit {
 
     // Último recurso: devolver la cadena tal cual
     return value;
+  }
+
+  private getTodayDate(): string {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const day = String(today.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
   }
 
   openEmailInfo(group: GmailEmailGroup): void {
